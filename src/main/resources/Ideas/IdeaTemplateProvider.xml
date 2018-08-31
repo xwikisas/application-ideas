@@ -232,6 +232,14 @@
       <action>edit</action>
     </property>
     <property>
+      <creationRestrictions>
+        <value>Ideas</value>
+      </creationRestrictions>
+    </property>
+    <property>
+      <creationRestrictionsAreSuggestions>0</creationRestrictionsAreSuggestions>
+    </property>
+    <property>
       <description>templateProvider.idea.description</description>
     </property>
     <property>
@@ -248,6 +256,11 @@
     </property>
     <property>
       <terminal/>
+    </property>
+    <property>
+      <visibilityRestrictions>
+        <value>Ideas</value>
+      </visibilityRestrictions>
     </property>
   </object>
 </xwikidoc>
