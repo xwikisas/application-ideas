@@ -122,8 +122,8 @@
     #end
     #set ($url = $xwiki.getURL("Ideas.IdeasVoteService", "get", "xpage=plain&amp;outputSyntax=plain&amp;page=${escapetool.url($pagename)}&amp;action=addVoteOpp"))
     #if ($status == 'open')
-	    (% class="xvote-con #if($addclass) $addclass #end against${hash}"
-              onclick="voteagainst('against${hash}', '${url}', '$ref', 'nbvotes${hash}')"%)
+      (% class="xvote-con #if($addclass) $addclass #end against${hash}"
+        onclick="voteagainst('against${hash}', '${url}', '$ref', 'nbvotes${hash}')"%)
     #else
       (% class="no-hover-con xvote-con #if($addclass) $addclass #end against${hash}"%)
     #end
@@ -477,25 +477,27 @@
       <code>function votefor(reflink, url, refresh,  opp) {
   new Ajax.Request(url, {
     onSuccess: function (response) {
-      var voted = $(document).getElementsByClassName(reflink);
-      var opponent = $(document).getElementsByClassName(opp);
+      var smallVote = $(document).getElementsByClassName(reflink)[0];
+      var largeVote = $(document).getElementsByClassName(reflink)[1];
+      var smallOpp = $(document).getElementsByClassName(opp)[0];
+      var largeOpp = $(document).getElementsByClassName(opp)[1];
       var responseJSON = response.responseJSON;
       if(responseJSON != null) {
         if(responseJSON.result) {
-          if($(voted)[0].hasClassName('voted-pro')) {
-            $(voted)[0].removeClassName('voted-pro');$(voted)[1].removeClassName('voted-pro');
+          if($(smallVote).hasClassName('voted-pro')) {
+            $(smallVote).removeClassName('voted-pro');$(largeVote).removeClassName('voted-pro');
           } else {
-            $(voted)[0].addClassName('voted-pro');$(voted)[1].addClassName('voted-pro');
+            $(smallVote).addClassName('voted-pro');$(largeVote).addClassName('voted-pro');
           }
-          $(opponent)[0].removeClassName('voted-con');$(opponent)[1].removeClassName('voted-con');
+          $(smallOpp).removeClassName('voted-con');$(largeOpp).removeClassName('voted-con');
           var nbv = responseJSON.nbvotes;
-          $(voted)[0].innerHTML = nbv;$(voted)[1].innerHTML = nbv;
+          $(smallVote).innerHTML = nbv;$(largeVote).innerHTML = nbv;
           if(refresh == 0) {
             location.reload();
           }
           else if (responseJSON.remove) {
             var nbdec = responseJSON.nbopp;
-            $(opponent)[0].innerHTML = nbdec;$(opponent)[1].innerHTML = nbdec;
+            $(smallOpp).innerHTML = nbdec;$(largeOpp).innerHTML = nbdec;
           }
         } else {
           alert(responseJSON.msg);
@@ -514,25 +516,27 @@
 function voteagainst(reflink, url, refresh, opp) {
   new Ajax.Request(url, {
     onSuccess: function (response) {
-      var voted = $(document).getElementsByClassName(reflink);
-      var opponent = $(document).getElementsByClassName(opp);
+      var smallVote = $(document).getElementsByClassName(reflink)[0];
+      var largeVote = $(document).getElementsByClassName(reflink)[1];
+      var smallOpp = $(document).getElementsByClassName(opp)[0];
+      var largeOpp = $(document).getElementsByClassName(opp)[1];
       var responseJSON = response.responseJSON;
       if(responseJSON != null) {
         if(responseJSON.result) {
-          if($(voted)[0].hasClassName('voted-con')) {
-            $(voted)[0].removeClassName('voted-con');$(voted)[1].removeClassName('voted-con');
+          if($(smallVote).hasClassName('voted-con')) {
+            $(smallVote).removeClassName('voted-con');$(largeVote).removeClassName('voted-con');
           } else {
-            $(voted)[0].addClassName('voted-con');$(voted)[1].addClassName('voted-con');
+            $(smallVote).addClassName('voted-con');$(largeVote).addClassName('voted-con');
           }
-          $(opponent)[0].removeClassName('voted-pro');$(opponent)[1].removeClassName('voted-pro');
+          $(smallOpp).removeClassName('voted-pro');$(largeOpp).removeClassName('voted-pro');
           var nbv = responseJSON.nbagainst;
-          $(voted)[0].innerHTML = nbv;$(voted)[1].innerHTML = nbv;
+          $(smallVote).innerHTML = nbv;$(largeVote).innerHTML = nbv;
           if(refresh == 0) {
             location.reload();
           }
           else if (responseJSON.remove) {
             var nbdec = responseJSON.nbopp;
-            $(opponent)[0].innerHTML = nbdec;$(opponent)[1].innerHTML = nbdec;
+            $(smallOpp).innerHTML = nbdec;$(largeOpp).innerHTML = nbdec;
           }
         } else {
           alert(responseJSON.msg);
