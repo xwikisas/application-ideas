@@ -122,7 +122,8 @@
     #end
     #set ($url = $xwiki.getURL("Ideas.IdeasVoteService", "get", "xpage=plain&amp;outputSyntax=plain&amp;page=${escapetool.url($pagename)}&amp;action=addVoteOpp"))
     #if ($status == 'open')
-	    (% class="xvote-con #if($addclass) $addclass #end against${hash}" onclick="voteagainst('against${hash}', '${url}', '$ref', 'nbvotes${hash}')"%)
+	    (% class="xvote-con #if($addclass) $addclass #end against${hash}"
+              onclick="voteagainst('against${hash}', '${url}', '$ref', 'nbvotes${hash}')"%)
     #else
       (% class="no-hover-con xvote-con #if($addclass) $addclass #end against${hash}"%)
     #end
@@ -190,7 +191,8 @@
     #end
     #set ($url = $xwiki.getURL("Ideas.IdeasVoteService", "get", "xpage=plain&amp;outputSyntax=plain&amp;page=${escapetool.url($pagename)}&amp;action=addVote"))
     #if($status == 'open')
-      (% class="xvote-pro #if ($addclass) $addclass #end nbvotes${hash}" onclick="votefor('nbvotes${hash}', '${url}', '$ref', 'against${hash}')"%)
+      (% class="xvote-pro #if ($addclass) $addclass #end nbvotes${hash}"
+        onclick="votefor('nbvotes${hash}', '${url}', '$ref', 'against${hash}')"%)
     #else
       (% class="no-hover-pro xvote-pro #if ($addclass) $addclass #end nbvotes${hash}"%)
     #end
