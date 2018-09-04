@@ -122,9 +122,9 @@
     #end
     #set ($url = $xwiki.getURL("Ideas.IdeasVoteService", "get", "xpage=plain&amp;outputSyntax=plain&amp;page=${escapetool.url($pagename)}&amp;action=addVoteOpp"))
     #if ($status == 'open')
-	    (% class="xvote-con #if($addclass) $addclass #end " onclick="voteagainst('against${hash}', '${url}', '$ref', 'nbvotes${hash}')" id="against${hash}"%)
+	    (% class="xvote-con #if($addclass) $addclass #end against${hash}" onclick="voteagainst('against${hash}', '${url}', '$ref', 'nbvotes${hash}')"%)
     #else
-      (% class="no-hover-con xvote-con #if($addclass) $addclass #end " id="against${hash}"%)
+      (% class="no-hover-con xvote-con #if($addclass) $addclass #end against${hash}"%)
     #end
     (((
     {{html clean=false}}
@@ -190,9 +190,9 @@
     #end
     #set ($url = $xwiki.getURL("Ideas.IdeasVoteService", "get", "xpage=plain&amp;outputSyntax=plain&amp;page=${escapetool.url($pagename)}&amp;action=addVote"))
     #if($status == 'open')
-      (% class="xvote-pro #if ($addclass) $addclass #end " onclick="votefor('nbvotes${hash}', '${url}', '$ref', 'against${hash}')" id="nbvotes${hash}"%)
+      (% class="xvote-pro #if ($addclass) $addclass #end nbvotes${hash}" onclick="votefor('nbvotes${hash}', '${url}', '$ref', 'against${hash}')"%)
     #else
-      (% class="no-hover-pro xvote-pro #if ($addclass) $addclass #end " id="nbvotes${hash}"%)
+      (% class="no-hover-pro xvote-pro #if ($addclass) $addclass #end nbvotes${hash}"%)
     #end
     (((
     {{html clean=false}}
@@ -473,25 +473,27 @@
     </property>
     <property>
       <code>function votefor(reflink, url, refresh,  opp) {
-  new Ajax.Request(url, { 
+  new Ajax.Request(url, {
     onSuccess: function (response) {
+      var voted = $(document).getElementsByClassName(reflink);
+      var opponent = $(document).getElementsByClassName(opp);
       var responseJSON = response.responseJSON;
       if(responseJSON != null) {
         if(responseJSON.result) {
-          if($(reflink).hasClassName('voted-pro')) { 
-             $(reflink).removeClassName('voted-pro');
+          if($(voted)[0].hasClassName('voted-pro')) {
+            $(voted)[0].removeClassName('voted-pro');$(voted)[1].removeClassName('voted-pro');
           } else {
-             $(reflink).addClassName('voted-pro');
+            $(voted)[0].addClassName('voted-pro');$(voted)[1].addClassName('voted-pro');
           }
-          $(opp).removeClassName('voted-con');
+          $(opponent)[0].removeClassName('voted-con');$(opponent)[1].removeClassName('voted-con');
           var nbv = responseJSON.nbvotes;
-          $(reflink).innerHTML = nbv;
+          $(voted)[0].innerHTML = nbv;$(voted)[1].innerHTML = nbv;
           if(refresh == 0) {
             location.reload();
           }
           else if (responseJSON.remove) {
             var nbdec = responseJSON.nbopp;
-            $(opp).innerHTML = nbdec;
+            $(opponent)[0].innerHTML = nbdec;$(opponent)[1].innerHTML = nbdec;
           }
         } else {
           alert(responseJSON.msg);
@@ -502,31 +504,33 @@
     },
     onFailure: function (response) {
       alert('Error while voting');
-    } 
-  }); 
+    }
+  });
   return false;
 }
 
 function voteagainst(reflink, url, refresh, opp) {
-  new Ajax.Request(url, { 
+  new Ajax.Request(url, {
     onSuccess: function (response) {
+      var voted = $(document).getElementsByClassName(reflink);
+      var opponent = $(document).getElementsByClassName(opp);
       var responseJSON = response.responseJSON;
       if(responseJSON != null) {
         if(responseJSON.result) {
-          if($(reflink).hasClassName('voted-con')) { 
-            $(reflink).removeClassName('voted-con');
+          if($(voted)[0].hasClassName('voted-con')) {
+            $(voted)[0].removeClassName('voted-con');$(voted)[1].removeClassName('voted-con');
           } else {
-            $(reflink).addClassName('voted-con');
+            $(voted)[0].addClassName('voted-con');$(voted)[1].addClassName('voted-con');
           }
-          $(opp).removeClassName('voted-pro');
+          $(opponent)[0].removeClassName('voted-pro');$(opponent)[1].removeClassName('voted-pro');
           var nbv = responseJSON.nbagainst;
-          $(reflink).innerHTML = nbv;
+          $(voted)[0].innerHTML = nbv;$(voted)[1].innerHTML = nbv;
           if(refresh == 0) {
             location.reload();
           }
           else if (responseJSON.remove) {
             var nbdec = responseJSON.nbopp;
-            $(opp).innerHTML = nbdec;
+            $(opponent)[0].innerHTML = nbdec;$(opponent)[1].innerHTML = nbdec;
           }
         } else {
           alert(responseJSON.msg);
@@ -537,8 +541,8 @@ function voteagainst(reflink, url, refresh, opp) {
     },
     onFailure: function (response) {
       alert('Error while voting');
-    } 
-  }); 
+    }
+  });
   return false;
 }</code>
     </property>
