@@ -485,19 +485,24 @@
       if(responseJSON != null) {
         if(responseJSON.result) {
           if($(smallVote).hasClassName('voted-pro')) {
-            $(smallVote).removeClassName('voted-pro');$(largeVote).removeClassName('voted-pro');
+            $(smallVote).removeClassName('voted-pro');
+            $(largeVote).removeClassName('voted-pro');
           } else {
-            $(smallVote).addClassName('voted-pro');$(largeVote).addClassName('voted-pro');
+            $(smallVote).addClassName('voted-pro');
+            $(largeVote).addClassName('voted-pro');
           }
-          $(smallOpp).removeClassName('voted-con');$(largeOpp).removeClassName('voted-con');
+          $(smallOpp).removeClassName('voted-con');
+          $(largeOpp).removeClassName('voted-con');
           var nbv = responseJSON.nbvotes;
-          $(smallVote).innerHTML = nbv;$(largeVote).innerHTML = nbv;
+          $(smallVote).innerHTML = nbv;
+          $(largeVote).innerHTML = nbv;
           if(refresh == 0) {
             location.reload();
           }
           else if (responseJSON.remove) {
             var nbdec = responseJSON.nbopp;
-            $(smallOpp).innerHTML = nbdec;$(largeOpp).innerHTML = nbdec;
+            $(smallOpp).innerHTML = nbdec;
+            $(largeOpp).innerHTML = nbdec;
           }
         } else {
           alert(responseJSON.msg);
@@ -524,19 +529,24 @@ function voteagainst(reflink, url, refresh, opp) {
       if(responseJSON != null) {
         if(responseJSON.result) {
           if($(smallVote).hasClassName('voted-con')) {
-            $(smallVote).removeClassName('voted-con');$(largeVote).removeClassName('voted-con');
+            $(smallVote).removeClassName('voted-con');
+            $(largeVote).removeClassName('voted-con');
           } else {
-            $(smallVote).addClassName('voted-con');$(largeVote).addClassName('voted-con');
+            $(smallVote).addClassName('voted-con');
+            $(largeVote).addClassName('voted-con');
           }
-          $(smallOpp).removeClassName('voted-pro');$(largeOpp).removeClassName('voted-pro');
+          $(smallOpp).removeClassName('voted-pro');
+          $(largeOpp).removeClassName('voted-pro');
           var nbv = responseJSON.nbagainst;
-          $(smallVote).innerHTML = nbv;$(largeVote).innerHTML = nbv;
+          $(smallVote).innerHTML = nbv;
+          $(largeVote).innerHTML = nbv;
           if(refresh == 0) {
             location.reload();
           }
           else if (responseJSON.remove) {
             var nbdec = responseJSON.nbopp;
-            $(smallOpp).innerHTML = nbdec;$(largeOpp).innerHTML = nbdec;
+            $(smallOpp).innerHTML = nbdec;
+            $(largeOpp).innerHTML = nbdec;
           }
         } else {
           alert(responseJSON.msg);
