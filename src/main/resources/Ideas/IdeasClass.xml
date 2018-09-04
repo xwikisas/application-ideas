@@ -477,32 +477,33 @@
       <code>function votefor(reflink, url, refresh,  opp) {
   new Ajax.Request(url, {
     onSuccess: function (response) {
-      var smallVote = $(document).getElementsByClassName(reflink)[0];
-      var largeVote = $(document).getElementsByClassName(reflink)[1];
-      var smallOpp = $(document).getElementsByClassName(opp)[0];
-      var largeOpp = $(document).getElementsByClassName(opp)[1];
+      var voted = Array.from($(document).getElementsByClassName(reflink));
+      var opponent = Array.from($(document).getElementsByClassName(opp));
       var responseJSON = response.responseJSON;
       if(responseJSON != null) {
         if(responseJSON.result) {
-          if($(smallVote).hasClassName('voted-pro')) {
-            $(smallVote).removeClassName('voted-pro');
-            $(largeVote).removeClassName('voted-pro');
-          } else {
-            $(smallVote).addClassName('voted-pro');
-            $(largeVote).addClassName('voted-pro');
-          }
-          $(smallOpp).removeClassName('voted-con');
-          $(largeOpp).removeClassName('voted-con');
+          voted.forEach( e =&gt; {
+            if(e.hasClassName('voted-pro')){
+              e.removeClassName('voted-pro');
+            } else {
+              e.addClassName('voted-pro');
+            }
+          });
+          opponent.forEach( e =&gt; {
+            e.removeClassName('voted-con');
+          });
           var nbv = responseJSON.nbvotes;
-          $(smallVote).innerHTML = nbv;
-          $(largeVote).innerHTML = nbv;
+          voted.forEach( e =&gt; {
+            e.innerHTML = nbv;
+          });
           if(refresh == 0) {
             location.reload();
           }
           else if (responseJSON.remove) {
             var nbdec = responseJSON.nbopp;
-            $(smallOpp).innerHTML = nbdec;
-            $(largeOpp).innerHTML = nbdec;
+            opponent.forEach( e =&gt; {
+              e.innerHTML = nbdec;
+            });
           }
         } else {
           alert(responseJSON.msg);
@@ -521,32 +522,33 @@
 function voteagainst(reflink, url, refresh, opp) {
   new Ajax.Request(url, {
     onSuccess: function (response) {
-      var smallVote = $(document).getElementsByClassName(reflink)[0];
-      var largeVote = $(document).getElementsByClassName(reflink)[1];
-      var smallOpp = $(document).getElementsByClassName(opp)[0];
-      var largeOpp = $(document).getElementsByClassName(opp)[1];
+      var voted = Array.from($(document).getElementsByClassName(reflink));
+      var opponent = Array.from($(document).getElementsByClassName(opp));
       var responseJSON = response.responseJSON;
       if(responseJSON != null) {
         if(responseJSON.result) {
-          if($(smallVote).hasClassName('voted-con')) {
-            $(smallVote).removeClassName('voted-con');
-            $(largeVote).removeClassName('voted-con');
-          } else {
-            $(smallVote).addClassName('voted-con');
-            $(largeVote).addClassName('voted-con');
-          }
-          $(smallOpp).removeClassName('voted-pro');
-          $(largeOpp).removeClassName('voted-pro');
+          voted.forEach( e =&gt; {
+            if(e.hasClassName('voted-con')){
+              e.removeClassName('voted-con');
+            } else {
+              e.addClassName('voted-con');
+            }
+          });
+          opponent.forEach( e =&gt; {
+            e.removeClassName('voted-pro');
+          });
           var nbv = responseJSON.nbagainst;
-          $(smallVote).innerHTML = nbv;
-          $(largeVote).innerHTML = nbv;
+          voted.forEach( e =&gt; {
+            e.innerHTML = nbv;
+          });
           if(refresh == 0) {
             location.reload();
           }
           else if (responseJSON.remove) {
             var nbdec = responseJSON.nbopp;
-            $(smallOpp).innerHTML = nbdec;
-            $(largeOpp).innerHTML = nbdec;
+            opponent.forEach( e =&gt; {
+              e.innerHTML = nbdec;
+            });
           }
         } else {
           alert(responseJSON.msg);
