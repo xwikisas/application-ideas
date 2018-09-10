@@ -120,12 +120,10 @@
     #if ($users.contains($xcontext.getLocalUser()))
       #set ($addclass = "voted-con")
     #end
-    #set ($url = $xwiki.getURL("Ideas.IdeasVoteService", "get", "xpage=plain&amp;outputSyntax=plain&amp;page=${escapetool.url($pagename)}&amp;action=addVoteOpp"))
     #if ($status == 'open')
-      (% class="xvote-con #if($addclass) $addclass #end against${hash}"
-        onclick="voteagainst('against${hash}', '${url}', '$ref', 'nbvotes${hash}')"%)
+      (% class="xvote-con against${hash} #if($addclass) $addclass #end" data-ref="$ref" data-opp="nbvotes${hash}"%)
     #else
-      (% class="no-hover-con xvote-con #if($addclass) $addclass #end against${hash}"%)
+      (% class="no-hover-con xvote-con against${hash} #if($addclass) $addclass #end"%)
     #end
     (((
     {{html clean=false}}
@@ -189,12 +187,10 @@
     #if ($users.contains($xcontext.getLocalUser()))
       #set ($addclass = "voted-pro")
     #end
-    #set ($url = $xwiki.getURL("Ideas.IdeasVoteService", "get", "xpage=plain&amp;outputSyntax=plain&amp;page=${escapetool.url($pagename)}&amp;action=addVote"))
     #if($status == 'open')
-      (% class="xvote-pro #if ($addclass) $addclass #end nbvotes${hash}"
-        onclick="votefor('nbvotes${hash}', '${url}', '$ref', 'against${hash}')"%)
+      (% class="xvote-pro nbvotes${hash} #if ($addclass) $addclass #end" data-ref="$ref" data-opp="against${hash}"%)
     #else
-      (% class="no-hover-pro xvote-pro #if ($addclass) $addclass #end nbvotes${hash}"%)
+      (% class="no-hover-pro xvote-pro nbvotes${hash} #if ($addclass) $addclass #end"%)
     #end
     (((
     {{html clean=false}}
@@ -474,95 +470,86 @@
       <cache>long</cache>
     </property>
     <property>
-      <code>function votefor(reflink, url, refresh,  opp) {
-  new Ajax.Request(url, {
-    onSuccess: function (response) {
-      var voted = Array.from($(document).getElementsByClassName(reflink));
-      var opponent = Array.from($(document).getElementsByClassName(opp));
-      var responseJSON = response.responseJSON;
-      if(responseJSON != null) {
-        if(responseJSON.result) {
+      <code>require(['jquery', 'xwiki-meta'], function($,xm) {
+  /**
+   * The function used for voting. Changes the classes so each button will
+   * have a given design according to the vote, changes the number of votes,
+   * shows a notification in case of error or an empty response from server.
+   */
+  var vote = function(voteClass, againstClass, button) {
+    var reflink = button.attr('class').split(' ')[1];
+    var opp = button.data('opp');
+    var refresh = button.data('ref');
+    // Creating the url according to the space from where the request was made
+    // and the type of action that is nedded.
+    if(voteClass == 'voted-pro') {
+      var addVote = 'addVote';
+    } else {
+      var addVote = 'addVoteOpp';
+    }
+    if(xm.document == 'Ideas.WebHome') {
+      var docName = xm.space + '.' +
+          button.parent().siblings('.doc_title').text() + '.' + xm.page;
+      var url = new XWiki.Document('IdeasVoteService', 'Ideas').getURL('get',
+        ('xpage=plain&amp;outputSyntax=plain&amp;page='+docName+'&amp;action='+addVote));
+    } else {
+      var url = new XWiki.Document('IdeasVoteService', 'Ideas').getURL('get',
+        ('xpage=plain&amp;outputSyntax=plain&amp;page='+xm.document+'&amp;action='+addVote));
+    }
+    // Ajax request.
+    $.ajax({
+      url : url,
+      success : function(response) {
+        var voted = Array.from($('.' + reflink));
+        var opponent = Array.from($('.' + opp));
+        if(response.result) {
           voted.forEach( e =&gt; {
-            if(e.hasClassName('voted-pro')){
-              e.removeClassName('voted-pro');
+            if($(e).hasClass(voteClass)) {
+              $(e).removeClass(voteClass);
             } else {
-              e.addClassName('voted-pro');
+              $(e).addClass(voteClass);
             }
           });
           opponent.forEach( e =&gt; {
-            e.removeClassName('voted-con');
+            $(e).removeClass(againstClass);
           });
-          var nbv = responseJSON.nbvotes;
+          if(voteClass == 'voted-pro') {
+            var nbv = response.nbvotes;
+          } else {
+            var nbv = response.nbagainst;
+          }
           voted.forEach( e =&gt; {
-            e.innerHTML = nbv;
+            $(e).html(nbv);
           });
-          if(refresh == 0) {
+          if(!refresh) {
             location.reload();
           }
-          else if (responseJSON.remove) {
-            var nbdec = responseJSON.nbopp;
+          else if(response.remove) {
+            var nbdec = response.nbopp;
             opponent.forEach( e =&gt; {
-              e.innerHTML = nbdec;
+              $(e).html(nbdec);
             });
           }
         } else {
-          alert(responseJSON.msg);
+          new XWiki.widgets.Notification(response.msg, 'failed');
         }
-      } else {
-        alert(response.responseText);
+      },
+      error : function() {
+        new XWiki.widgets.Notification(
+          "$services.localization.render('Ideas.IdeasClass.error')", 'error');
       }
-    },
-    onFailure: function (response) {
-      alert('Error while voting');
-    }
+    });
+    return false;
+  }
+  $(window).on("load", function() {
+    $('.xvote-pro').click(function() {
+      vote('voted-pro', 'voted-con', $(this));
+    });
+    $('.xvote-con').click(function() {
+      vote('voted-con', 'voted-pro', $(this));
+    });
   });
-  return false;
-}
-
-function voteagainst(reflink, url, refresh, opp) {
-  new Ajax.Request(url, {
-    onSuccess: function (response) {
-      var voted = Array.from($(document).getElementsByClassName(reflink));
-      var opponent = Array.from($(document).getElementsByClassName(opp));
-      var responseJSON = response.responseJSON;
-      if(responseJSON != null) {
-        if(responseJSON.result) {
-          voted.forEach( e =&gt; {
-            if(e.hasClassName('voted-con')){
-              e.removeClassName('voted-con');
-            } else {
-              e.addClassName('voted-con');
-            }
-          });
-          opponent.forEach( e =&gt; {
-            e.removeClassName('voted-pro');
-          });
-          var nbv = responseJSON.nbagainst;
-          voted.forEach( e =&gt; {
-            e.innerHTML = nbv;
-          });
-          if(refresh == 0) {
-            location.reload();
-          }
-          else if (responseJSON.remove) {
-            var nbdec = responseJSON.nbopp;
-            opponent.forEach( e =&gt; {
-              e.innerHTML = nbdec;
-            });
-          }
-        } else {
-          alert(responseJSON.msg);
-        }
-      } else {
-        alert(response.responseText);
-      }
-    },
-    onFailure: function (response) {
-      alert('Error while voting');
-    }
-  });
-  return false;
-}</code>
+});</code>
     </property>
     <property>
       <name>JSX_Vote</name>
