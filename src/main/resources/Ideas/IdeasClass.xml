@@ -489,13 +489,12 @@
     }
     if(xm.document == 'Ideas.WebHome') {
       var docName = xm.space + '.' +
-          button.parent().siblings('.doc_title').text() + '.' + xm.page;
-      var url = new XWiki.Document('IdeasVoteService', 'Ideas').getURL('get',
-        ('xpage=plain&amp;outputSyntax=plain&amp;page='+docName+'&amp;action='+addVote));
+        button.parent().siblings('.doc_title').text() + '.' + xm.page;
     } else {
-      var url = new XWiki.Document('IdeasVoteService', 'Ideas').getURL('get',
-        ('xpage=plain&amp;outputSyntax=plain&amp;page='+xm.document+'&amp;action='+addVote));
+      var docName = xm.document;
     }
+    var url = new XWiki.Document('IdeasVoteService', 'Ideas').getURL('get',
+      ('xpage=plain&amp;outputSyntax=plain&amp;page='+docName+'&amp;action='+addVote));
     // Ajax request.
     $.ajax({
       url : url,
@@ -531,12 +530,12 @@
             });
           }
         } else {
-          new XWiki.widgets.Notification(response.msg, 'failed');
+          new XWiki.widgets.Notification(response.msg, 'error');
         }
       },
       error : function() {
         new XWiki.widgets.Notification(
-          "$services.localization.render('Ideas.IdeasClass.error')", 'error');
+          "$services.localization.render('ideas.ideasclass.vote.error')", 'error');
       }
     });
     return false;
