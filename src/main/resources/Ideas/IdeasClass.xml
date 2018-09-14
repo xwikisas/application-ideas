@@ -513,10 +513,10 @@
             } else {
               $(e).addClass(voteClass);
               if(voteClass == 'voted-pro') {
-                supportText.html( "$services.localization.render('ideas.ideassheet.voted')" );
+                supportText.html("$services.localization.render('ideas.ideassheet.voted')");
                 againstText.empty();
               } else {
-                againstText.html( "$services.localization.render('ideas.ideassheet.votedagainst')" );
+                againstText.html("$services.localization.render('ideas.ideassheet.votedagainst')");
                 supportText.empty();
               }
             }
@@ -527,15 +527,15 @@
           // Updating the votes. Refreshing the list of users that have voted with an idea.
           if(voteClass == 'voted-pro') {
             var nbv = response.nbvotes;
-            $("#pro-participants").load(XWiki.currentDocument.getURL('get') + " #pro-participants&gt;*", "");
+            $('#pro-participants').load(XWiki.currentDocument.getURL('get') + ' #pro-participants&gt;*', '');
             if(response.nbagainst || response.remove) {
-              $("#against-participants").load(XWiki.currentDocument.getURL('get') + " #against-participants&gt;*", "");
+              $('#against-participants').load(XWiki.currentDocument.getURL('get') + ' #against-participants&gt;*', '');
             }
           } else {
             var nbv = response.nbagainst;
-            $("#against-participants").load(XWiki.currentDocument.getURL('get') + " #against-participants&gt;*", "");
+            $('#against-participants').load(XWiki.currentDocument.getURL('get') + ' #against-participants&gt;*', '');
             if(response.nbvotes || response.remove) {
-              $("#pro-participants").load(XWiki.currentDocument.getURL('get') + " #pro-participants&gt;*", "");
+              $('#pro-participants').load(XWiki.currentDocument.getURL('get') + ' #pro-participants&gt;*', '');
             }
           }
           voted.forEach( e =&gt; {

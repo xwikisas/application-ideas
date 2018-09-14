@@ -101,7 +101,7 @@
   )))
 )))
 #end
-#if($xcontext.action=="view" || $xcontext.action=="get")
+#if($xcontext.action=='view' || $xcontext.action=='get')
 (% class="xform well well-sm" %)
 (((
   (% class="row" %)
@@ -157,7 +157,7 @@
   )))
 #end
 #end
-#if(($xcontext.action=="view" || $xcontext.action=="get") &amp;&amp; $xwiki.checkAuth())
+#if(($xcontext.action=='view' || $xcontext.action=='get') &amp;&amp; $xwiki.checkAuth())
 (% class="row" %)
 (((
   (% class="col-xs-12 col-sm-6 col-md-6"  %)
