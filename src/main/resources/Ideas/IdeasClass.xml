@@ -477,6 +477,16 @@
    * shows a notification in case of error or an empty response from server.
    */
   var vote = function(voteClass, againstClass, button) {
+    // Checking if the vote is open before voting. Don't execute the following code if the idea is not available.
+    var status = $('.status').text();
+    if(xm.document != 'Ideas.WebHome') {
+      status = $('.status dd').text();
+    }
+    if(status != 'Open') {
+      new XWiki.widgets.Notification(
+        "$services.localization.render('ideas.ideasclass.vote.closed')", 'warning');
+      return;
+    }
     var reflink = button.attr('class').split(' ')[1];
     var opp = button.data('opp');
     var refresh = button.data('ref');
@@ -561,22 +571,12 @@
     });
     return false;
   }
-  // Checking if the vote is open before voting.
   $(window).on("load", function() {
-    if(xm.document == 'Ideas.WebHome') {
-      var status = $('.status').text();
-    } else {
-      var status = $('.status dd').text();
-    }
     $('.xvote-pro').click(function() {
-      if(status == 'Open') {
-        vote('voted-pro', 'voted-con', $(this));
-      }
+      vote('voted-pro', 'voted-con', $(this));
     });
     $('.xvote-con').click(function() {
-      if(status == 'Open') {
-        vote('voted-con', 'voted-pro', $(this));
-      }
+      vote('voted-con', 'voted-pro', $(this));
     });
   });
 });</code>
