@@ -55,6 +55,11 @@
     <xwiki.extension.category>application</xwiki.extension.category>
     <!-- Don't run CLIRR here since there's no Java code. -->
     <xwiki.clirr.skip>true</xwiki.clirr.skip>
+
+    <!-- Components -->
+    <xwiki.extension.components>
+      org.xwiki.rendering.macro.Macro/ideasrecent
+    </xwiki.extension.components>
   </properties>
   <dependencies>
     <dependency>
