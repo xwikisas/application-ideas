@@ -54,20 +54,22 @@ public class DefaultIdeasManager implements IdeasManager
 {
     static final LocalDocumentReference IDEA_CLASS_REFERENCE = new LocalDocumentReference("Ideas", "IdeasClass");
 
-    private static final String VOTERS_AGAINST_KEY = "against";
-    private static final String NUMBER_OF_AGAINST_VOTES_KEY = "nbagainst";
+    static final String VOTERS_AGAINST_KEY = "against";
 
-    private static final String VOTERS_FOR_KEY = "supporters";
-    private static final String NUMBER_OF_FOR_VOTES_KEY = "nbvotes";
+    static final String NUMBER_OF_AGAINST_VOTES_KEY = "nbagainst";
 
-    private static final String COMMA = ",";
+    static final String VOTERS_FOR_KEY = "supporters";
+
+    static final String NUMBER_OF_FOR_VOTES_KEY = "nbvotes";
+
+    static final String COMMA = ",";
 
     private static final Map<String, String> SUPP_TO_NR_KEY = new HashMap<>();
+
     static {
         SUPP_TO_NR_KEY.put(VOTERS_AGAINST_KEY, NUMBER_OF_AGAINST_VOTES_KEY);
         SUPP_TO_NR_KEY.put(VOTERS_FOR_KEY, NUMBER_OF_FOR_VOTES_KEY);
     }
-
 
     @Inject
     private Provider<XWikiContext> contextProvider;
@@ -107,11 +109,13 @@ public class DefaultIdeasManager implements IdeasManager
 
             if (!mydoc.isNew() && null != ideasObj) {
                 Map<String, Boolean> doRemoveMap = new HashMap<>();
+                doRemoveMap.put(VOTERS_FOR_KEY, false);
+                doRemoveMap.put(VOTERS_AGAINST_KEY, false);
                 // Action : Add a supporter (vote)
                 if (voteType.equals("addVote")) {
-                    doRemoveMap = addVote(VOTERS_FOR_KEY, VOTERS_AGAINST_KEY, ideasObj, user, result, xcontext);
+                    addVote(VOTERS_FOR_KEY, VOTERS_AGAINST_KEY, ideasObj, user, result, xcontext, doRemoveMap);
                 } else if (voteType.equals("addVoteOpp")) {
-                    doRemoveMap = addVote(VOTERS_AGAINST_KEY, VOTERS_FOR_KEY, ideasObj, user, result, xcontext);
+                    addVote(VOTERS_AGAINST_KEY, VOTERS_FOR_KEY, ideasObj, user, result, xcontext, doRemoveMap);
                 }
                 // Action : Remove a supporter (vote)
                 if (voteType.equals("removeVote") || doRemoveMap.get(VOTERS_FOR_KEY)) {
@@ -122,7 +126,9 @@ public class DefaultIdeasManager implements IdeasManager
                     decrementVote(VOTERS_AGAINST_KEY, ideasObj, user, xcontext, result);
                 }
                 // Save document
-                xWiki.saveDocument(mydoc, "New Vote", xcontext);
+                if (!result.isEmpty()) {
+                    xWiki.saveDocument(mydoc, "New Vote", xcontext);
+                }
             } else {
                 throw new IdeasException(String.format("Failed to vote for [%s] on behalf of [%s].",
                     documentReference, user.getUserReference()));
@@ -135,11 +141,9 @@ public class DefaultIdeasManager implements IdeasManager
         }
     }
 
-    private Map<String, Boolean> addVote(String voterKey, String voterOpponentKey, BaseObject ideasObj, XWikiUser user,
-        Map<String, Object> result, XWikiContext xcontext) {
-        Map<String, Boolean> removeMap = new HashMap<>();
-        removeMap.put(voterKey, false);
-        removeMap.put(voterOpponentKey, false);
+    private void addVote(String voterKey, String voterOpponentKey, BaseObject ideasObj, XWikiUser user,
+        Map<String, Object> result, XWikiContext xcontext, Map<String, Boolean> removeMap)
+    {
 
         String userList = ideasObj.getStringValue(voterKey);
         String userListSup = ideasObj.getStringValue(voterOpponentKey);
@@ -155,8 +159,8 @@ public class DefaultIdeasManager implements IdeasManager
                 result.put("remove", true);
                 result.put("nbopp", nbopp - 1);
             }
-            if (userList == null) {
-                userList = COMMA + user;
+            if (userList == null || userList.isEmpty()) {
+                userList = user.toString();
             } else {
                 userList = userList + COMMA + user;
             }
@@ -166,11 +170,11 @@ public class DefaultIdeasManager implements IdeasManager
             ideasObj.set(SUPP_TO_NR_KEY.get(voterKey), nbvotes, xcontext);
             result.put(SUPP_TO_NR_KEY.get(voterKey), nbvotes);
         }
-        return  removeMap;
     }
 
     private void decrementVote(String voterKey, BaseObject ideasObj, XWikiUser user, XWikiContext xcontext,
-        Map<String, Object> result) {
+        Map<String, Object> result)
+    {
         String userList = ideasObj.getStringValue(voterKey);
         int nbvotes = ideasObj.getIntValue(SUPP_TO_NR_KEY.get(voterKey));
         String newUserList = StringUtils.replaceOnce(userList, COMMA + user.toString(), "");
