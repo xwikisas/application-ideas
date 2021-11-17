@@ -39,7 +39,7 @@
   <content>{{velocity}}
 #set($discard = $xwiki.ssfx.use('uicomponents/pagination/pagination.css', 'true'))
 #set($docextras = [])
-$xwiki.jsx.use("Ideas.IdeasClass")
+$xwiki.jsx.use("Ideas.IdeasClass", {'docRef': $doc.documentReference})
 $xwiki.ssx.use("Ideas.IdeasClass")
 ## Load the User Picker style for the "Assigned to" column
 #set($discard = $xwiki.ssfx.use('uicomponents/widgets/userpicker/userPicker.css'))
@@ -54,10 +54,12 @@ $xwiki.ssx.use("Ideas.IdeasClass")
   'assignement': {"type":"text","size":20,"link":"field", "html":true},
   'doc.date': {"type":"text","size":10},
   'doc.author': {"type":"text","size":10,"link":"author"},
-  '_actions': {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]}
+  '_actions': {"sortable":false,"filterable":false,"html":true,"actions":["edit","delete"]},
+  'doc_rest_url': {"type": "text"}
 })
 #set ($options = {
   'className': 'Ideas.IdeasClass',
+  'resultPage': 'Ideas.IdeasJSON',
   'translationPrefix': 'ideas.livetable.',
   'tagCloud': true,
   'rowCount': 15,
@@ -65,7 +67,7 @@ $xwiki.ssx.use("Ideas.IdeasClass")
   'selectedColumn': 'status',
   'defaultOrder': 'asc'
 })
-#set ($columns = ['doc.fullName', 'nbvotes','nbagainst','doc.title', 'nbestimate','status','priority','assignement','doc.date', 'doc.author', '_actions'])
+#set ($columns = ['doc.fullName', 'nbvotes','nbagainst','doc.title', 'nbestimate','status','priority','assignement','doc.date', 'doc.author', '_actions', 'doc_rest_url'])
 #livetable($doc $columns $columnsProperties $options)
 {{/velocity}}</content>
 </xwikidoc>

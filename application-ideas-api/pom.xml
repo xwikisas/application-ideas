@@ -31,7 +31,9 @@
   <packaging>jar</packaging>
   <name>Ideas Application API</name>
   <description>Provides the Java APIs needed by the Ideas Application.</description>
-
+  <properties>
+    <xwiki.extension.namespaces>{root}</xwiki.extension.namespaces>
+  </properties>
   <dependencies>
     <dependency>
       <groupId>javax.ws.rs</groupId>

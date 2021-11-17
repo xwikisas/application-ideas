@@ -33,8 +33,17 @@ public interface IdeasManager
 {
     /**
      * @param documentReference the document that we want to get the URL for
-     * @param action the action that needs to be performed over the document
      * @return the Ideas REST URL specific to the document
      */
-    String getRestUrl(DocumentReference documentReference, String action);
+    String getRestUrl(DocumentReference documentReference);
+
+    /**
+     *
+     * @param documentReference a reference to a document that contains an Idea
+     * @param voteType the type of the vote that the user wants to cast
+     * @return a string in a JSON format describing the results of the vote
+     * @throws IdeasException if document specific operations fail such as document retrieval, missing Idea
+     * object, document save
+     */
+    String vote(DocumentReference documentReference, String voteType) throws IdeasException;
 }

@@ -43,10 +43,9 @@ public class IdeasScriptService implements ScriptService
 
     /**
      * @param documentReference the document that we want to get the URL for
-     * @param action the action that needs to be performed over the document
      * @return the Ideas REST URL specific to the document
      */
-    public String url(DocumentReference documentReference, String action) {
-        return ideasManager.getRestUrl(documentReference, action);
+    public String url(DocumentReference documentReference) {
+        return ideasManager.getRestUrl(documentReference);
     }
 }

@@ -102,7 +102,7 @@
     </content1>
     <nbagainst>
       <customDisplay>{{velocity}}
-  $xwiki.jsx.use("Ideas.IdeasClass")
+  $xwiki.jsx.use("Ideas.IdeasClass", {'docRef': $doc.documentReference})
   $xwiki.ssx.use("Ideas.IdeasClass")
   #set ($pagename = $object.name)
   #set ($hash = $pagename.hashCode())
@@ -169,7 +169,7 @@
     </nbestimate>
     <nbvotes>
       <customDisplay>{{velocity}}
-  $xwiki.jsx.use("Ideas.IdeasClass")
+  $xwiki.jsx.use("Ideas.IdeasClass", {'docRef': $doc.documentReference})
   $xwiki.ssx.use("Ideas.IdeasClass")
   #set ($pagename = $object.name)
   #set ($hash = $pagename.hashCode())
@@ -523,15 +523,18 @@
 
     var docName = xm.document;
 
-    // Set the docName of an idea from a page that uses the Recent Idea macro.
+    // Get the REST url for the Document Reference passed
+    // The vote is cast from the Idea page
+    var url = "$!services.ideas.url($request.docRef)";
+    // The vote is cast from a page that uses the Recent Ideas Macro
     if (button.closest('.ideas-recent').length &gt; 0) {
-      docName = button.siblings('.fullName').text();
+      url = button.siblings('.fullName').text();
       status = button.siblings('.status').text();
     }
-
+    // The vote is cast from the livetable of Ideas.Webhome
     if(xm.document == 'Ideas.WebHome') {
       var docTitle = button.parent().siblings('.doc_title');
-      docName = button.parent().siblings('.doc_fullName').text();
+      url = button.parent().siblings('.doc_rest_url').text();
     }
 
     if(status != "$services.localization.render('Ideas.IdeasClass_status_open')") {
@@ -542,77 +545,72 @@
     var reflink = button.attr('class').split(' ')[1];
     var opp = button.data('opp');
     var refresh = button.data('ref');
-    // Creating the url according to the space from where the request was made
-    // and the type of action that is nedded.
+    // Determine the vote type that was cast
     if(voteClass == 'voted-pro') {
       var addVote = 'addVote';
     } else {
       var addVote = 'addVoteOpp';
     }
+    // Add the vote type to the url
+    url = url  + '?voteType=' + addVote;
 
-    var url = new XWiki.Document('IdeasVoteService', 'Ideas').getURL('get',
-      ('xpage=plain&amp;outputSyntax=plain&amp;page=' + encodeURIComponent(docName) + '&amp;action=' + addVote));
     // Ajax request.
     $.ajax({
       url : url,
+      type: 'PUT',
       success : function(response) {
         var voted = Array.from($('.' + reflink));
         var opponent = Array.from($('.' + opp));
         var supportText = $('.result-pro').next();
         var againstText = $('.result-against').next();
         // Changing the class acording to the vote. Updating the text that shows to the user which one is his choice.
-        if(response.result) {
-          voted.forEach(function(e) {
-            if($(e).hasClass(voteClass)) {
-              $(e).removeClass(voteClass);
-              supportText.empty();
+        voted.forEach(function(e) {
+          if($(e).hasClass(voteClass)) {
+            $(e).removeClass(voteClass);
+            supportText.empty();
+            againstText.empty();
+          } else {
+            $(e).addClass(voteClass);
+            if(voteClass == 'voted-pro') {
+              supportText.html("$services.localization.render('ideas.ideassheet.voted')");
               againstText.empty();
             } else {
-              $(e).addClass(voteClass);
-              if(voteClass == 'voted-pro') {
-                supportText.html("$services.localization.render('ideas.ideassheet.voted')");
-                againstText.empty();
-              } else {
-                againstText.html("$services.localization.render('ideas.ideassheet.votedagainst')");
-                supportText.empty();
-              }
+              againstText.html("$services.localization.render('ideas.ideassheet.votedagainst')");
+              supportText.empty();
             }
-          });
-          opponent.forEach(function(e) {
-            $(e).removeClass(againstClass);
-          });
-          // Updating the votes. Refreshing the list of users that have voted with an idea.
-          if(voteClass == 'voted-pro') {
-            var nbv = response.nbvotes;
-            $('#pro-participants').load(XWiki.currentDocument.getURL('get') + ' #pro-participants&gt;*', '');
-            if(response.nbagainst || response.remove) {
-              $('#against-participants').load(XWiki.currentDocument.getURL('get') + ' #against-participants&gt;*', '');
-            }
-          } else {
-            var nbv = response.nbagainst;
+          }
+        });
+        opponent.forEach(function(e) {
+          $(e).removeClass(againstClass);
+        });
+        // Updating the votes. Refreshing the list of users that have voted with an idea.
+        if(voteClass == 'voted-pro') {
+          var nbv = response.nbvotes;
+          $('#pro-participants').load(XWiki.currentDocument.getURL('get') + ' #pro-participants&gt;*', '');
+          if(response.nbagainst || response.remove) {
             $('#against-participants').load(XWiki.currentDocument.getURL('get') + ' #against-participants&gt;*', '');
-            if(response.nbvotes || response.remove) {
-              $('#pro-participants').load(XWiki.currentDocument.getURL('get') + ' #pro-participants&gt;*', '');
-            }
-          }
-          voted.forEach(function(e) {
-            $(e).html(nbv);
-          });
-          if(!refresh) {
-            location.reload();
-          }
-          else if(response.remove) {
-            var nbdec = response.nbopp;
-            opponent.forEach(function(e) {
-              $(e).html(nbdec);
-            });
           }
         } else {
-          new XWiki.widgets.Notification(
-            response.msg || "$services.localization.render('ideas.ideasclass.vote.error')", 'error');
+          var nbv = response.nbagainst;
+          $('#against-participants').load(XWiki.currentDocument.getURL('get') + ' #against-participants&gt;*', '');
+          if(response.nbvotes || response.remove) {
+            $('#pro-participants').load(XWiki.currentDocument.getURL('get') + ' #pro-participants&gt;*', '');
+          }
+        }
+        voted.forEach(function(e) {
+          $(e).html(nbv);
+        });
+        if(!refresh) {
+          location.reload();
+        }
+        else if(response.remove) {
+          var nbdec = response.nbopp;
+          opponent.forEach(function(e) {
+            $(e).html(nbdec);
+          });
         }
       },
-      error : function() {
+      error : function(response) {
         new XWiki.widgets.Notification(
           "$services.localization.render('ideas.ideasclass.vote.error')", 'error');
       }
