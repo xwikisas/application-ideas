@@ -19,8 +19,6 @@
  */
 package com.xwiki.ideas.internal;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,21 +30,19 @@ import org.apache.commons.lang.StringUtils;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.LocalDocumentReference;
-import org.xwiki.model.reference.SpaceReference;
-import org.xwiki.velocity.tools.JSONTool;
 
 import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
-import com.xpn.xwiki.user.api.XWikiUser;
 import com.xwiki.ideas.IdeasException;
 import com.xwiki.ideas.IdeasManager;
+import com.xwiki.ideas.model.VoteResult;
 
 /**
  * @version $Id$
- * @since 1.4
+ * @since 1.14
  */
 @Component
 @Singleton
@@ -64,61 +60,38 @@ public class DefaultIdeasManager implements IdeasManager
 
     static final String COMMA = ",";
 
-    private static final Map<String, String> SUPP_TO_NR_KEY = new HashMap<>();
+    private static final Map<String, String> VOTER_KEY_TO_NR_KEY = new HashMap<>();
 
     static {
-        SUPP_TO_NR_KEY.put(VOTERS_AGAINST_KEY, NUMBER_OF_AGAINST_VOTES_KEY);
-        SUPP_TO_NR_KEY.put(VOTERS_FOR_KEY, NUMBER_OF_FOR_VOTES_KEY);
+        VOTER_KEY_TO_NR_KEY.put(VOTERS_AGAINST_KEY, NUMBER_OF_AGAINST_VOTES_KEY);
+        VOTER_KEY_TO_NR_KEY.put(VOTERS_FOR_KEY, NUMBER_OF_FOR_VOTES_KEY);
     }
 
     @Inject
     private Provider<XWikiContext> contextProvider;
 
-    @Override public String getRestUrl(DocumentReference documentReference)
-    {
-        String contextPath = contextProvider.get().getRequest().getContextPath();
-        StringBuilder stringBuilder = new StringBuilder();
-        try {
-            stringBuilder.append(contextPath);
-            stringBuilder.append("/rest/wikis/");
-            stringBuilder
-                .append(URLEncoder.encode(documentReference.getWikiReference().getName(), XWiki.DEFAULT_ENCODING));
-            for (SpaceReference spaceReference : documentReference.getSpaceReferences()) {
-                stringBuilder.append("/spaces/");
-                stringBuilder.append(URLEncoder.encode(spaceReference.getName(), XWiki.DEFAULT_ENCODING));
-            }
-            stringBuilder.append("/pages/");
-            stringBuilder.append(URLEncoder.encode(documentReference.getName(), XWiki.DEFAULT_ENCODING));
-            stringBuilder.append("/idea");
-            return stringBuilder.toString();
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(String.format("Failed to retrieve the REST URL of the document: [%s]",
-                documentReference), e);
-        }
-    }
-
-    @Override public String vote(DocumentReference documentReference, String voteType) throws IdeasException
+    @Override public VoteResult vote(DocumentReference documentReference, boolean pro) throws IdeasException
     {
         XWikiContext xcontext = contextProvider.get();
         XWiki xWiki = xcontext.getWiki();
-        Map<String, Object> result = new HashMap<>();
+        VoteResult result = new VoteResult();
         try {
             XWikiDocument mydoc = xWiki.getDocument(documentReference, xcontext);
             BaseObject ideasObj = mydoc.getXObject(IDEA_CLASS_REFERENCE);
-            XWikiUser user = xWiki.checkAuth(xcontext);
+            DocumentReference user = xcontext.getUserReference();
 
             if (!mydoc.isNew() && null != ideasObj) {
                 Map<String, Boolean> doRemoveMap = new HashMap<>();
                 doRemoveMap.put(VOTERS_FOR_KEY, false);
                 doRemoveMap.put(VOTERS_AGAINST_KEY, false);
                 // Action : Add a supporter (vote)
-                if (voteType.equals("addVote")) {
+                if (pro) {
                     addVote(VOTERS_FOR_KEY, VOTERS_AGAINST_KEY, ideasObj, user, result, xcontext, doRemoveMap);
-                } else if (voteType.equals("addVoteOpp")) {
+                } else {
                     addVote(VOTERS_AGAINST_KEY, VOTERS_FOR_KEY, ideasObj, user, result, xcontext, doRemoveMap);
                 }
                 // Action : Remove a supporter (vote)
-                if (voteType.equals("removeVote") || doRemoveMap.get(VOTERS_FOR_KEY)) {
+                if (doRemoveMap.get(VOTERS_FOR_KEY)) {
                     // Remove user from user list
                     decrementVote(VOTERS_FOR_KEY, ideasObj, user, xcontext, result);
                 } else if (doRemoveMap.get(VOTERS_AGAINST_KEY)) {
@@ -126,29 +99,27 @@ public class DefaultIdeasManager implements IdeasManager
                     decrementVote(VOTERS_AGAINST_KEY, ideasObj, user, xcontext, result);
                 }
                 // Save document
-                if (!result.isEmpty()) {
-                    xWiki.saveDocument(mydoc, "New Vote", xcontext);
-                }
+
+                xWiki.saveDocument(mydoc, "New Vote", xcontext);
             } else {
                 throw new IdeasException(String.format("Failed to vote for [%s] on behalf of [%s].",
-                    documentReference, user.getUserReference()));
+                    documentReference, user));
             }
-            JSONTool jsonTool = new JSONTool();
-            return jsonTool.serialize(result);
+            return result;
         } catch (XWikiException e) {
             throw new IdeasException(
                 String.format("Failed to do a document specific action on [%s]", documentReference), e);
         }
     }
 
-    private void addVote(String voterKey, String voterOpponentKey, BaseObject ideasObj, XWikiUser user,
-        Map<String, Object> result, XWikiContext xcontext, Map<String, Boolean> removeMap)
+    private void addVote(String voterKey, String voterOpponentKey, BaseObject ideasObj, DocumentReference user,
+        VoteResult result, XWikiContext xcontext, Map<String, Boolean> removeMap)
     {
 
         String userList = ideasObj.getStringValue(voterKey);
         String userListSup = ideasObj.getStringValue(voterOpponentKey);
-        int nbvotes = ideasObj.getIntValue(SUPP_TO_NR_KEY.get(voterKey));
-        int nbopp = ideasObj.getIntValue(SUPP_TO_NR_KEY.get(voterOpponentKey));
+        int nbvotes = ideasObj.getIntValue(VOTER_KEY_TO_NR_KEY.get(voterKey));
+        int nbopp = ideasObj.getIntValue(VOTER_KEY_TO_NR_KEY.get(voterOpponentKey));
 
         if (StringUtils.contains(userList, user.toString())) {
             removeMap.put(voterKey, true);
@@ -156,8 +127,8 @@ public class DefaultIdeasManager implements IdeasManager
             // Add user in userList
             if (StringUtils.contains(userListSup, user.toString())) {
                 removeMap.put(voterOpponentKey, true);
-                result.put("remove", true);
-                result.put("nbopp", nbopp - 1);
+                result.setRemove();
+                result.setNbopp(nbopp - 1);
             }
             if (userList == null || userList.isEmpty()) {
                 userList = user.toString();
@@ -167,23 +138,31 @@ public class DefaultIdeasManager implements IdeasManager
             ideasObj.set(voterKey, userList, xcontext);
             // Increase vote by one
             nbvotes = nbvotes + 1;
-            ideasObj.set(SUPP_TO_NR_KEY.get(voterKey), nbvotes, xcontext);
-            result.put(SUPP_TO_NR_KEY.get(voterKey), nbvotes);
+            ideasObj.set(VOTER_KEY_TO_NR_KEY.get(voterKey), nbvotes, xcontext);
+            if (voterKey.equals(VOTERS_FOR_KEY)) {
+                result.setNbvotes(nbvotes);
+            } else {
+                result.setNbagainst(nbvotes);
+            }
         }
     }
 
-    private void decrementVote(String voterKey, BaseObject ideasObj, XWikiUser user, XWikiContext xcontext,
-        Map<String, Object> result)
+    private void decrementVote(String voterKey, BaseObject ideasObj, DocumentReference user, XWikiContext xcontext,
+        VoteResult result)
     {
         String userList = ideasObj.getStringValue(voterKey);
-        int nbvotes = ideasObj.getIntValue(SUPP_TO_NR_KEY.get(voterKey));
-        String newUserList = StringUtils.replaceOnce(userList, COMMA + user.toString(), "");
+        int nbvotes = ideasObj.getIntValue(VOTER_KEY_TO_NR_KEY.get(voterKey));
+        String newUserList = StringUtils.replaceOnce(userList, COMMA + user, "");
         newUserList = StringUtils.replaceOnce(newUserList, user + COMMA, "");
         newUserList = StringUtils.replaceOnce(newUserList, user.toString(), "");
         ideasObj.set(voterKey, newUserList, xcontext);
         // Decrease vote by one
         nbvotes--;
-        ideasObj.set(SUPP_TO_NR_KEY.get(voterKey), nbvotes, xcontext);
-        result.put(SUPP_TO_NR_KEY.get(voterKey), nbvotes);
+        ideasObj.set(VOTER_KEY_TO_NR_KEY.get(voterKey), nbvotes, xcontext);
+        if (voterKey.equals(VOTERS_FOR_KEY)) {
+            result.setNbvotes(nbvotes);
+        } else {
+            result.setNbagainst(nbvotes);
+        }
     }
 }

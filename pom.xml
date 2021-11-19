@@ -32,7 +32,7 @@
     <version>11.10</version>
   </parent>
   <groupId>com.xwiki.ideas</groupId>
-  <artifactId>application-ideas</artifactId>
+  <artifactId>application-ideas-pom</artifactId>
   <version>1.13.2-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Ideas Application Parent POM</name>

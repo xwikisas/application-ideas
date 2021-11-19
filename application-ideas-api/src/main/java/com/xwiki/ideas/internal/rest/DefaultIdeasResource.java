@@ -40,7 +40,7 @@ import com.xwiki.ideas.rest.IdeasResource;
  * Default implementation of {@link IdeasResource}.
  *
  * @version $Id$
- * @since 1.4
+ * @since 1.14
  */
 @Component
 @Named("com.xwiki.ideas.internal.rest.DefaultIdeasResource")
@@ -53,7 +53,7 @@ public class DefaultIdeasResource extends ModifiablePageResource implements Idea
     @Inject
     private ContextualAuthorizationManager authorizationManager;
 
-    @Override public Response castVote(String xwikiName, String spaceName, String pageName, String voteType)
+    @Override public Response vote(String xwikiName, String spaceName, String pageName, Boolean pro)
         throws XWikiRestException
     {
         DocumentReference documentReference = new DocumentReference(pageName, getSpaceReference(spaceName, xwikiName));
@@ -61,15 +61,16 @@ public class DefaultIdeasResource extends ModifiablePageResource implements Idea
             return Response.status(Response.Status.FORBIDDEN).build();
         }
 
-        if (voteType == null || voteType.isEmpty()) {
+        if (pro == null) {
             return Response
                 .status(Response.Status.BAD_REQUEST)
                 .type(MediaType.TEXT_PLAIN)
-                .entity("voteType query missing from URL.")
+                .entity("pro query missing from URL.")
                 .build();
         }
         try {
-            return Response.ok(manager.vote(documentReference, voteType)).type(MediaType.APPLICATION_JSON).build();
+            return Response.ok(manager.vote(documentReference, pro), MediaType.APPLICATION_JSON)
+                .build();
         } catch (IdeasException e) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }

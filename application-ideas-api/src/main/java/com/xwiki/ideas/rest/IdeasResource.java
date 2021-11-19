@@ -42,15 +42,16 @@ public interface IdeasResource
      * @param xwikiName The name of the wiki in which the page resides
      * @param spaceName The spaces associated with the page
      * @param pageName The name of the page
-     * @param voteType The intention of the user with regards to the idea
-     * @return A status of the undergone process
+     * @param pro denoted whether the user is pro or against the idea
+     * @return A response containing a serialized version of a {@link com.xwiki.ideas.model.VoteResult} in case of
+     *     success or an appropriate response code otherwise.
      * @throws XWikiRestException when the document is missing or lacks an Ideas poll
      */
     @PUT
-    Response castVote(
+    Response vote(
         @PathParam("wikiName") String xwikiName,
         @PathParam("spaceName") String spaceName,
         @PathParam("pageName") String pageName,
-        @QueryParam("voteType") String voteType
+        @QueryParam("pro") Boolean pro
     ) throws XWikiRestException;
 }

@@ -23,7 +23,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>application-ideas</artifactId>
+    <artifactId>application-ideas-pom</artifactId>
     <groupId>com.xwiki.ideas</groupId>
     <version>1.13.2-SNAPSHOT</version>
   </parent>
@@ -32,6 +32,8 @@
   <name>Ideas Application API</name>
   <description>Provides the Java APIs needed by the Ideas Application.</description>
   <properties>
+  <!--  As the API exposes a REST API, we need to install this on farm for all the sub-wikis to have access to the
+          entry point -->
     <xwiki.extension.namespaces>{root}</xwiki.extension.namespaces>
   </properties>
   <dependencies>

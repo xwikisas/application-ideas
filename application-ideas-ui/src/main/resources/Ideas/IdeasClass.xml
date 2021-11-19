@@ -102,7 +102,7 @@
     </content1>
     <nbagainst>
       <customDisplay>{{velocity}}
-  $xwiki.jsx.use("Ideas.IdeasClass", {'docRef': $doc.documentReference})
+  $xwiki.jsx.use("Ideas.IdeasClass")
   $xwiki.ssx.use("Ideas.IdeasClass")
   #set ($pagename = $object.name)
   #set ($hash = $pagename.hashCode())
@@ -169,7 +169,7 @@
     </nbestimate>
     <nbvotes>
       <customDisplay>{{velocity}}
-  $xwiki.jsx.use("Ideas.IdeasClass", {'docRef': $doc.documentReference})
+  $xwiki.jsx.use("Ideas.IdeasClass")
   $xwiki.ssx.use("Ideas.IdeasClass")
   #set ($pagename = $object.name)
   #set ($hash = $pagename.hashCode())
@@ -521,20 +521,18 @@
       status = $('.status dd').text();
     }
 
-    var docName = xm.document;
-
     // Get the REST url for the Document Reference passed
     // The vote is cast from the Idea page
-    var url = "$!services.ideas.url($request.docRef)";
+    var url = getRestURL(new XWiki.Document(xm.documentReference));
+    var docName = '';
     // The vote is cast from a page that uses the Recent Ideas Macro
     if (button.closest('.ideas-recent').length &gt; 0) {
-      url = button.siblings('.fullName').text();
+      docName = button.siblings('.fullName').text();
       status = button.siblings('.status').text();
     }
     // The vote is cast from the livetable of Ideas.Webhome
     if(xm.document == 'Ideas.WebHome') {
-      var docTitle = button.parent().siblings('.doc_title');
-      url = button.parent().siblings('.doc_rest_url').text();
+      docName = button.parent().siblings('.doc_fullName').text();
     }
 
     if(status != "$services.localization.render('Ideas.IdeasClass_status_open')") {
@@ -542,17 +540,21 @@
         "$services.localization.render('ideas.ideasclass.vote.closed')", 'warning');
       return;
     }
+    if (docName != '') {
+      var docRef = XWiki.Model.resolve(docName, XWiki.EntityType.DOCUMENT, [xm.wiki]);
+      url = getRestURL(new XWiki.Document(docRef));
+    }
     var reflink = button.attr('class').split(' ')[1];
     var opp = button.data('opp');
     var refresh = button.data('ref');
     // Determine the vote type that was cast
     if(voteClass == 'voted-pro') {
-      var addVote = 'addVote';
+      var addVote = true;
     } else {
-      var addVote = 'addVoteOpp';
+      var addVote = false;
     }
     // Add the vote type to the url
-    url = url  + '?voteType=' + addVote;
+    url = url  + '?pro=' + addVote;
 
     // Ajax request.
     $.ajax({
@@ -623,7 +625,16 @@
   $(document).on('click', '.xvote-con', function() {
     vote('voted-con', 'voted-pro', $(this));
   });
-});</code>
+});
+function getRestURL(doc) {
+  var url = XWiki.contextPath + '/rest/wikis/';
+  url = url + doc.wiki;
+  for (const space of doc.spaces) {
+    url = url + '/spaces/' + space;
+  }
+  url = url + '/pages/' + doc.page + '/idea';
+  return url;
+}</code>
     </property>
     <property>
       <name>JSX_Vote</name>
@@ -775,9 +786,9 @@
 .no-hover-con:hover, .no-hover-pro:hover {
   opacity: 0.5;
 }
-.xwiki-livetable-display-header tr th:nth-child(-n+2),
-.xwiki-livetable-display-header tr td:nth-child(-n+2),
-.xwiki-livetable-display-body tr td:nth-child(-n+2) {
+.xwiki-livetable-display-header tr th:first-child,
+.xwiki-livetable-display-header tr td:first-child,
+.xwiki-livetable-display-body tr td:first-child {
   display: none;
 }</code>
     </property>

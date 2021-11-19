@@ -107,7 +107,7 @@
       </content1>
       <nbagainst>
         <customDisplay>{{velocity}}
-  $xwiki.jsx.use("Ideas.IdeasClass", {'docRef': $doc.documentReference})
+  $xwiki.jsx.use("Ideas.IdeasClass")
   $xwiki.ssx.use("Ideas.IdeasClass")
   #set ($pagename = $object.name)
   #set ($hash = $pagename.hashCode())
@@ -174,7 +174,7 @@
       </nbestimate>
       <nbvotes>
         <customDisplay>{{velocity}}
-  $xwiki.jsx.use("Ideas.IdeasClass", {'docRef': $doc.documentReference})
+  $xwiki.jsx.use("Ideas.IdeasClass")
   $xwiki.ssx.use("Ideas.IdeasClass")
   #set ($pagename = $object.name)
   #set ($hash = $pagename.hashCode())

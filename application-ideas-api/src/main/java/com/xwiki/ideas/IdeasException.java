@@ -22,10 +22,10 @@ package com.xwiki.ideas;
 import org.xwiki.stability.Unstable;
 
 /**
- * Any exception raised when handling XPoll business.
+ * Any exception raised when handling Ideas business.
  *
  * @version $Id$
- * @since 1.4
+ * @since 1.14
  */
 @Unstable
 public class IdeasException extends Exception
