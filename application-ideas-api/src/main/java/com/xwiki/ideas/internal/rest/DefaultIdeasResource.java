@@ -32,6 +32,7 @@ import org.xwiki.rest.internal.resources.pages.ModifiablePageResource;
 import org.xwiki.security.authorization.ContextualAuthorizationManager;
 import org.xwiki.security.authorization.Right;
 
+import com.xwiki.ideas.IdeasDocumentOperationException;
 import com.xwiki.ideas.IdeasException;
 import com.xwiki.ideas.IdeasManager;
 import com.xwiki.ideas.rest.IdeasResource;
@@ -73,6 +74,8 @@ public class DefaultIdeasResource extends ModifiablePageResource implements Idea
                 .build();
         } catch (IdeasException e) {
             return Response.status(Response.Status.NOT_FOUND).build();
+        } catch (IdeasDocumentOperationException e) {
+            return Response.serverError().build();
         }
     }
 }

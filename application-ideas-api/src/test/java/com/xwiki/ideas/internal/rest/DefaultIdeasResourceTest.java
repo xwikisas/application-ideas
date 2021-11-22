@@ -36,6 +36,7 @@ import org.xwiki.test.junit5.mockito.MockComponent;
 import org.xwiki.test.mockito.MockitoComponentManager;
 
 import com.xpn.xwiki.XWikiContext;
+import com.xwiki.ideas.IdeasDocumentOperationException;
 import com.xwiki.ideas.IdeasException;
 import com.xwiki.ideas.IdeasManager;
 import com.xwiki.ideas.model.VoteResult;
@@ -88,7 +89,7 @@ public class DefaultIdeasResourceTest
     }
 
     @Test
-    void castVoteTest() throws IdeasException, XWikiRestException
+    void castVoteTest() throws IdeasException, XWikiRestException, IdeasDocumentOperationException
     {
         int nOfVotes = 1;
         VoteResult voteResult = new VoteResult();

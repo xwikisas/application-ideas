@@ -38,6 +38,7 @@ import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 import com.xpn.xwiki.user.api.XWikiUser;
 import com.xpn.xwiki.web.XWikiRequest;
+import com.xwiki.ideas.IdeasDocumentOperationException;
 import com.xwiki.ideas.IdeasException;
 import com.xwiki.ideas.model.VoteResult;
 
@@ -93,7 +94,7 @@ public class DefaultIdeasManagerTest
     }
 
     @Test
-    void voteProWhenThereAreNoOtherVotesTest() throws XWikiException, IdeasException
+    void voteProWhenThereAreNoOtherVotesTest() throws XWikiException, IdeasException, IdeasDocumentOperationException
     {
         String userName = "XWiki:Space1.User";
 

@@ -37,8 +37,9 @@ public interface IdeasManager
      * @param documentReference a reference to a document that contains an Idea
      * @param pro true if the user agrees with the Idea; false otherwise
      * @return an Object representation of the vote result
-     * @throws IdeasException if document specific operations fail such as document retrieval, missing Idea object,
-     *     document save
+     * @throws IdeasException if the document does not exist or it doesn't have an Idea
+     * @throws IdeasDocumentOperationException if the server fails to do a document specific operation such as saving
      */
-    VoteResult vote(DocumentReference documentReference, boolean pro) throws IdeasException;
+    VoteResult vote(DocumentReference documentReference, boolean pro)
+        throws IdeasException, IdeasDocumentOperationException;
 }
