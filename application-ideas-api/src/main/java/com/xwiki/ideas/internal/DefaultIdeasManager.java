@@ -19,16 +19,21 @@
  */
 package com.xwiki.ideas.internal;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.model.reference.EntityReferenceSerializer;
 import org.xwiki.model.reference.LocalDocumentReference;
 
 import com.xpn.xwiki.XWiki;
@@ -36,10 +41,9 @@ import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
-import com.xwiki.ideas.IdeasDocumentOperationException;
 import com.xwiki.ideas.IdeasException;
 import com.xwiki.ideas.IdeasManager;
-import com.xwiki.ideas.model.VoteResult;
+import com.xwiki.ideas.model.xjc.Idea;
 
 /**
  * @version $Id$
@@ -59,12 +63,14 @@ public class DefaultIdeasManager implements IdeasManager
 
     static final String NUMBER_OF_FOR_VOTES_KEY = "nbvotes";
 
-    static final String COMMA = ",";
-
     private static final Map<String, String> VOTER_KEY_TO_NR_KEY = new HashMap<>();
 
     private static final String NOT_FOUND_ERROR =
         "The document [%s] does not exists or it does not have an Idea Object.";
+
+    private static final String FAILED_LOAD_EXCEPTION = "Failed to load idea document [%s].";
+
+    private static final String COMMA = ",";
 
     static {
         VOTER_KEY_TO_NR_KEY.put(VOTERS_AGAINST_KEY, NUMBER_OF_AGAINST_VOTES_KEY);
@@ -74,103 +80,92 @@ public class DefaultIdeasManager implements IdeasManager
     @Inject
     private Provider<XWikiContext> contextProvider;
 
-    @Override public VoteResult vote(DocumentReference documentReference, boolean pro)
-        throws IdeasException, IdeasDocumentOperationException
+    @Inject
+    @Named("compact")
+    private EntityReferenceSerializer<String> serializer;
+
+    @Override public Idea vote(DocumentReference documentReference, boolean pro)
+        throws IdeasException
     {
         XWikiContext xcontext = contextProvider.get();
         XWiki xWiki = xcontext.getWiki();
-        VoteResult result = new VoteResult();
-        XWikiDocument mydoc;
         try {
-            mydoc = xWiki.getDocument(documentReference, xcontext);
-        } catch (XWikiException e) {
-            throw new IdeasException(String.format(NOT_FOUND_ERROR, documentReference), e);
-        }
-        BaseObject ideasObj = mydoc.getXObject(IDEA_CLASS_REFERENCE);
-        DocumentReference user = xcontext.getUserReference();
-        if (!mydoc.isNew() && null != ideasObj) {
-            Map<String, Boolean> doRemoveMap = new HashMap<>();
-            doRemoveMap.put(VOTERS_FOR_KEY, false);
-            doRemoveMap.put(VOTERS_AGAINST_KEY, false);
-            // Action : Add a supporter (vote)
-            if (pro) {
-                addVote(VOTERS_FOR_KEY, VOTERS_AGAINST_KEY, ideasObj, user, result, xcontext, doRemoveMap);
-            } else {
-                addVote(VOTERS_AGAINST_KEY, VOTERS_FOR_KEY, ideasObj, user, result, xcontext, doRemoveMap);
-            }
-            // Action : Remove a supporter (vote)
-            if (doRemoveMap.get(VOTERS_FOR_KEY)) {
-                // Remove user from user list
-                decrementVote(VOTERS_FOR_KEY, ideasObj, user, xcontext, result);
-            } else if (doRemoveMap.get(VOTERS_AGAINST_KEY)) {
-                // Remove user from user list
-                decrementVote(VOTERS_AGAINST_KEY, ideasObj, user, xcontext, result);
-            }
-            // Save document
+            XWikiDocument mydoc = xWiki.getDocument(documentReference, xcontext);
 
-            try {
+            BaseObject ideasObj = mydoc.getXObject(IDEA_CLASS_REFERENCE);
+            DocumentReference user = xcontext.getUserReference();
+            if (!mydoc.isNew() && null != ideasObj) {
+                String serializedUser = serializer.serialize(user, documentReference.getWikiReference());
+
+                if (pro) {
+                    addVote(VOTERS_FOR_KEY, ideasObj, serializedUser, xcontext);
+                    removeVote(VOTERS_AGAINST_KEY, ideasObj, serializedUser, xcontext);
+                } else {
+                    addVote(VOTERS_AGAINST_KEY, ideasObj, serializedUser, xcontext);
+                    removeVote(VOTERS_FOR_KEY, ideasObj, serializedUser, xcontext);
+                }
+                List<String> proUsers = getListValue(VOTERS_FOR_KEY, ideasObj);
+                List<String> againstUsers = getListValue(VOTERS_AGAINST_KEY, ideasObj);
+                Idea result = new Idea();
+                result.setNbagainst(againstUsers.size());
+                result.setNbvotes(proUsers.size());
+                result.getAgainst().addAll(againstUsers);
+                result.getSupporters().addAll(proUsers);
+
+                // Save document
                 xWiki.saveDocument(mydoc, "New Vote", xcontext);
-            } catch (XWikiException e) {
-                throw new IdeasDocumentOperationException(
-                    String.format("Failed to vote the Ideas of [%s] on behalfof [%s]", documentReference, user), e);
-            }
-        } else {
-            throw new IdeasException(String.format(NOT_FOUND_ERROR, documentReference));
-        }
-        return result;
-    }
-
-    private void addVote(String voterKey, String voterOpponentKey, BaseObject ideasObj, DocumentReference user,
-        VoteResult result, XWikiContext xcontext, Map<String, Boolean> removeMap)
-    {
-
-        String userList = ideasObj.getStringValue(voterKey);
-        String userListSup = ideasObj.getStringValue(voterOpponentKey);
-        int nbvotes = ideasObj.getIntValue(VOTER_KEY_TO_NR_KEY.get(voterKey));
-        int nbopp = ideasObj.getIntValue(VOTER_KEY_TO_NR_KEY.get(voterOpponentKey));
-
-        if (StringUtils.contains(userList, user.toString())) {
-            removeMap.put(voterKey, true);
-        } else {
-            // Add user in userList
-            if (StringUtils.contains(userListSup, user.toString())) {
-                removeMap.put(voterOpponentKey, true);
-                result.setRemove();
-                result.setNbopp(nbopp - 1);
-            }
-            if (userList == null || userList.isEmpty()) {
-                userList = user.toString();
+                return result;
             } else {
-                userList = userList + COMMA + user;
+                throw new IdeasException(String.format(NOT_FOUND_ERROR, documentReference));
             }
-            ideasObj.set(voterKey, userList, xcontext);
-            // Increase vote by one
-            nbvotes = nbvotes + 1;
-            ideasObj.set(VOTER_KEY_TO_NR_KEY.get(voterKey), nbvotes, xcontext);
-            if (voterKey.equals(VOTERS_FOR_KEY)) {
-                result.setNbvotes(nbvotes);
-            } else {
-                result.setNbagainst(nbvotes);
-            }
+        } catch (XWikiException e) {
+            throw new IdeasException(String.format(FAILED_LOAD_EXCEPTION, documentReference));
         }
     }
 
-    private void decrementVote(String voterKey, BaseObject ideasObj, DocumentReference user, XWikiContext xcontext,
-        VoteResult result)
+    @Override public boolean exists(DocumentReference documentReference) throws IdeasException
     {
-        String userList = ideasObj.getStringValue(voterKey);
-        int nbvotes = ideasObj.getIntValue(VOTER_KEY_TO_NR_KEY.get(voterKey));
-        String newUserList = StringUtils.replaceOnce(userList, COMMA + user, "");
-        newUserList = StringUtils.replaceOnce(newUserList, user + COMMA, "");
-        newUserList = StringUtils.replaceOnce(newUserList, user.toString(), "");
-        ideasObj.set(voterKey, newUserList, xcontext);
-        // Decrease vote by one
-        nbvotes--;
-        ideasObj.set(VOTER_KEY_TO_NR_KEY.get(voterKey), nbvotes, xcontext);
-        if (voterKey.equals(VOTERS_FOR_KEY)) {
-            result.setNbvotes(nbvotes);
-        } else {
-            result.setNbagainst(nbvotes);
+        try {
+            XWikiContext xcontext = contextProvider.get();
+            XWiki xWiki = xcontext.getWiki();
+            XWikiDocument mydoc = xWiki.getDocument(documentReference, xcontext);
+            BaseObject ideasObject = mydoc.getXObject(IDEA_CLASS_REFERENCE);
+            return ideasObject != null;
+        } catch (XWikiException e) {
+            throw new IdeasException(String.format(FAILED_LOAD_EXCEPTION, documentReference), e);
         }
+    }
+
+    private void addVote(String voterKey, BaseObject ideasObj, String user, XWikiContext xcontext)
+    {
+        List<String> userList = getListValue(voterKey, ideasObj);
+
+        if (userList.contains(user)) {
+            userList.remove(user);
+        } else {
+            userList.add(user);
+        }
+        ideasObj.set(voterKey, StringUtils.join(userList, COMMA), xcontext);
+        ideasObj.set(VOTER_KEY_TO_NR_KEY.get(voterKey), userList.size(), xcontext);
+    }
+
+    private void removeVote(String voterKey, BaseObject ideasObj, String user, XWikiContext xcontext)
+    {
+        List<String> userList = getListValue(voterKey, ideasObj);
+        userList.remove(user);
+        ideasObj.set(voterKey, StringUtils.join(userList, COMMA), xcontext);
+        ideasObj.set(VOTER_KEY_TO_NR_KEY.get(voterKey), userList.size(), xcontext);
+    }
+
+    private List<String> getListValue(String voterKey, BaseObject ideasObj)
+    {
+        String userListAsString = ideasObj.getStringValue(voterKey);
+        List<String> userList;
+        if (userListAsString.isEmpty()) {
+            userList = new ArrayList<>();
+        } else {
+            userList = new ArrayList<>(Arrays.asList(userListAsString.split(COMMA)));
+        }
+        return userList;
     }
 }

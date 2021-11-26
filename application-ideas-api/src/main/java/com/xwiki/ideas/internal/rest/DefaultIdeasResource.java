@@ -22,7 +22,7 @@ package com.xwiki.ideas.internal.rest;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import org.xwiki.component.annotation.Component;
@@ -32,9 +32,9 @@ import org.xwiki.rest.internal.resources.pages.ModifiablePageResource;
 import org.xwiki.security.authorization.ContextualAuthorizationManager;
 import org.xwiki.security.authorization.Right;
 
-import com.xwiki.ideas.IdeasDocumentOperationException;
 import com.xwiki.ideas.IdeasException;
 import com.xwiki.ideas.IdeasManager;
+import com.xwiki.ideas.model.xjc.Idea;
 import com.xwiki.ideas.rest.IdeasResource;
 
 /**
@@ -54,28 +54,25 @@ public class DefaultIdeasResource extends ModifiablePageResource implements Idea
     @Inject
     private ContextualAuthorizationManager authorizationManager;
 
-    @Override public Response vote(String xwikiName, String spaceName, String pageName, Boolean pro)
+    @Override
+    public Idea vote(String xwikiName, String spaceName, String pageName, Boolean pro)
         throws XWikiRestException
     {
         DocumentReference documentReference = new DocumentReference(pageName, getSpaceReference(spaceName, xwikiName));
         if (!authorizationManager.hasAccess(Right.EDIT, documentReference)) {
-            return Response.status(Response.Status.FORBIDDEN).build();
+            throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
 
         if (pro == null) {
-            return Response
-                .status(Response.Status.BAD_REQUEST)
-                .type(MediaType.TEXT_PLAIN)
-                .entity("pro query missing from URL.")
-                .build();
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
         try {
-            return Response.ok(manager.vote(documentReference, pro), MediaType.APPLICATION_JSON)
-                .build();
+            if (manager.exists(documentReference)) {
+                return manager.vote(documentReference, pro);
+            }
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
         } catch (IdeasException e) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        } catch (IdeasDocumentOperationException e) {
-            return Response.serverError().build();
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 }

@@ -23,9 +23,11 @@ import org.xwiki.component.annotation.Role;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.stability.Unstable;
 
-import com.xwiki.ideas.model.VoteResult;
+import com.xwiki.ideas.model.xjc.Idea;
 
 /**
+ * Provides methods to interact with Ideas.
+ *
  * @version $Id$
  * @since 1.14
  */
@@ -34,12 +36,22 @@ import com.xwiki.ideas.model.VoteResult;
 public interface IdeasManager
 {
     /**
+     * Registers a vote for an Idea on the behalf of the current user. The vote can be either for or against.
+     * Registering the same vote twice will remove the vote from the Idea.
+     *
      * @param documentReference a reference to a document that contains an Idea
      * @param pro true if the user agrees with the Idea; false otherwise
      * @return an Object representation of the vote result
      * @throws IdeasException if the document does not exist or it doesn't have an Idea
-     * @throws IdeasDocumentOperationException if the server fails to do a document specific operation such as saving
      */
-    VoteResult vote(DocumentReference documentReference, boolean pro)
-        throws IdeasException, IdeasDocumentOperationException;
+    Idea vote(DocumentReference documentReference, boolean pro) throws IdeasException;
+
+    /**
+     * A function to check whether an Idea exists or not.
+     *
+     * @param documentReference a document reference that we want to check
+     * @return true if the document has an Idea; false otherwise
+     * @throws IdeasException if the document does not exists or it doesn't have an Idea
+     */
+    boolean exists(DocumentReference documentReference) throws IdeasException;
 }

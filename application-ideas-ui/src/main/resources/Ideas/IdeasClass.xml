@@ -558,6 +558,9 @@
 
     // Ajax request.
     $.ajax({
+      headers: {
+        Accept : "application/json"
+      },
       url : url,
       type: 'PUT',
       success : function(response) {
@@ -588,28 +591,21 @@
         // Updating the votes. Refreshing the list of users that have voted with an idea.
         if(voteClass == 'voted-pro') {
           var nbv = response.nbvotes;
-          $('#pro-participants').load(XWiki.currentDocument.getURL('get') + ' #pro-participants&gt;*', '');
-          if(response.nbagainst || response.remove) {
-            $('#against-participants').load(XWiki.currentDocument.getURL('get') + ' #against-participants&gt;*', '');
-          }
+          var nbop = response.nbagainst;
         } else {
           var nbv = response.nbagainst;
-          $('#against-participants').load(XWiki.currentDocument.getURL('get') + ' #against-participants&gt;*', '');
-          if(response.nbvotes || response.remove) {
-            $('#pro-participants').load(XWiki.currentDocument.getURL('get') + ' #pro-participants&gt;*', '');
-          }
+          var nbop = response.nbvotes;
         }
+        $('#pro-participants').load(XWiki.currentDocument.getURL('get') + ' #pro-participants&gt;*', '');
+        $('#against-participants').load(XWiki.currentDocument.getURL('get') + ' #against-participants&gt;*', '');
         voted.forEach(function(e) {
           $(e).html(nbv);
         });
+          opponent.forEach(function(e) {
+            $(e).html(nbop);
+          });
         if(!refresh) {
           location.reload();
-        }
-        else if(response.remove) {
-          var nbdec = response.nbopp;
-          opponent.forEach(function(e) {
-            $(e).html(nbdec);
-          });
         }
       },
       error : function(response) {

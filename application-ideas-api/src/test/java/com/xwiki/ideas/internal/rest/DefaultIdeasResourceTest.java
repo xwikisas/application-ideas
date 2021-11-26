@@ -20,7 +20,6 @@
 package com.xwiki.ideas.internal.rest;
 
 import javax.inject.Provider;
-import javax.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
 import org.xwiki.component.manager.ComponentManager;
@@ -39,10 +38,9 @@ import com.xpn.xwiki.XWikiContext;
 import com.xwiki.ideas.IdeasDocumentOperationException;
 import com.xwiki.ideas.IdeasException;
 import com.xwiki.ideas.IdeasManager;
-import com.xwiki.ideas.model.VoteResult;
+import com.xwiki.ideas.model.xjc.Idea;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.mock;
@@ -89,17 +87,16 @@ public class DefaultIdeasResourceTest
     }
 
     @Test
-    void castVoteTest() throws IdeasException, XWikiRestException, IdeasDocumentOperationException
+    void castVoteTest() throws IdeasException, XWikiRestException
     {
         int nOfVotes = 1;
-        VoteResult voteResult = new VoteResult();
+        Idea voteResult = new Idea();
         voteResult.setNbvotes(nOfVotes);
         when(authorizationManager.hasAccess(any(), any())).thenReturn(true);
+        when(manager.exists(any())).thenReturn(true);
         when(manager.vote(any(), anyBoolean())).thenReturn(voteResult);
+        Idea response = this.ideasResource.vote("wiki", "space", "page", true);
 
-        Response response = this.ideasResource.vote("wiki", "space", "page", true);
-
-        assertTrue(response.getEntity() instanceof VoteResult);
-        assertEquals(nOfVotes, ((VoteResult) response.getEntity()).getNbvotes());
+        assertEquals(nOfVotes, response.getNbvotes());
     }
 }

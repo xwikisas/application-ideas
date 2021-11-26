@@ -21,12 +21,14 @@ package com.xwiki.ideas.internal;
 
 import java.util.Arrays;
 
+import javax.inject.Named;
 import javax.inject.Provider;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.model.reference.EntityReferenceSerializer;
 import org.xwiki.test.junit5.mockito.ComponentTest;
 import org.xwiki.test.junit5.mockito.InjectMockComponents;
 import org.xwiki.test.junit5.mockito.MockComponent;
@@ -36,13 +38,9 @@ import com.xpn.xwiki.XWikiContext;
 import com.xpn.xwiki.XWikiException;
 import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
-import com.xpn.xwiki.user.api.XWikiUser;
-import com.xpn.xwiki.web.XWikiRequest;
-import com.xwiki.ideas.IdeasDocumentOperationException;
 import com.xwiki.ideas.IdeasException;
-import com.xwiki.ideas.model.VoteResult;
+import com.xwiki.ideas.model.xjc.Idea;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -63,23 +61,23 @@ public class DefaultIdeasManagerTest
 
     @MockComponent
     private Provider<XWikiContext> contextProvider;
+
+    @MockComponent
+    @Named("compactwiki")
+    private EntityReferenceSerializer<String> serializer;
     @Mock
     private XWikiContext xWikiContext;
-    @Mock
-    private XWikiRequest request;
     @Mock
     private XWiki xWiki;
     @Mock
     private XWikiDocument document;
-    @Mock
-    private XWikiUser user;
+
 
     @BeforeEach
-    void setup() throws XWikiException
+    void setup()
     {
         when(this.contextProvider.get()).thenReturn(this.xWikiContext);
         when(this.xWikiContext.getWiki()).thenReturn(xWiki);
-        when(xWiki.checkAuth(this.xWikiContext)).thenReturn(user);
     }
     @Test
     void voteDocumentWithNoIdeaObjectTest() throws XWikiException
@@ -94,30 +92,23 @@ public class DefaultIdeasManagerTest
     }
 
     @Test
-    void voteProWhenThereAreNoOtherVotesTest() throws XWikiException, IdeasException, IdeasDocumentOperationException
+    void voteProWhenThereAreNoOtherVotesTest() throws XWikiException, IdeasException
     {
         String userName = "XWiki:Space1.User";
+        DocumentReference user = new DocumentReference("XWiki", "Space1", "User");
 
         DocumentReference input = new DocumentReference("XWiki", Arrays.asList("Space1", "Space2"), "Page");
         BaseObject ideaObj = mock(BaseObject.class);
-        when(this.xWiki.getDocument(input, this.xWikiContext)).thenReturn(document);
-        when(this.xWikiContext.getUserReference()).thenReturn(new DocumentReference("XWiki", "Space1", "User"));
-        when(document.getXObject(DefaultIdeasManager.IDEA_CLASS_REFERENCE)).thenReturn(ideaObj);
-        when(document.isNew()).thenReturn(false);
-        when(this.user.toString()).thenReturn(userName);
+        when(this.xWiki.getDocument(input, this.xWikiContext)).thenReturn(this.document);
+        when(this.document.getXObject(DefaultIdeasManager.IDEA_CLASS_REFERENCE)).thenReturn(ideaObj);
+        when(this.xWikiContext.getUserReference()).thenReturn(user);
+        when(this.document.isNew()).thenReturn(false);
+        when(this.serializer.serialize(user, input.getWikiReference())).thenReturn(userName);
         when(ideaObj.getStringValue(DefaultIdeasManager.VOTERS_FOR_KEY)).thenReturn("");
         when(ideaObj.getStringValue(DefaultIdeasManager.VOTERS_AGAINST_KEY)).thenReturn("");
-        when(ideaObj.getIntValue(DefaultIdeasManager.NUMBER_OF_FOR_VOTES_KEY)).thenReturn(0);
-        when(ideaObj.getIntValue(DefaultIdeasManager.NUMBER_OF_AGAINST_VOTES_KEY)).thenReturn(0);
+        this.manager.vote(input, true);
 
-        VoteResult result = this.manager.vote(input, true);
-
-        verify(ideaObj).set(DefaultIdeasManager.VOTERS_FOR_KEY, userName, this.xWikiContext);
-        verify(ideaObj).set(DefaultIdeasManager.NUMBER_OF_FOR_VOTES_KEY, 1, this.xWikiContext);
         verify(this.xWiki).saveDocument(this.document, "New Vote", this.xWikiContext);
-
-        assertEquals(1, result.getNbvotes());
-
     }
 
 }
