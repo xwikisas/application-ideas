@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
- *
+/*
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
  *
@@ -18,17 +16,40 @@
  * License along with this software; if not, write to the Free
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+package com.xwiki.ideas.model;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Represents a serializable version of a vote result.
  *
--->
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.xwiki.com/ideas/model/jaxb"
-  xmlns:idea="http://www.xwiki.com/ideas/model/jaxb" elementFormDefault="qualified">
+ * @version $Id$
+ * @since 1.14
+ */
+public class Idea
+{
+    protected List<String> supporters;
+    protected List<String> opponents;
 
-  <xs:element name="idea" type="idea:Idea"/>
+    /**
+     * @return the reference to the list of supporters
+     */
+    public List<String> getSupporters() {
+        if (supporters == null) {
+            supporters = new ArrayList<String>();
+        }
+        return this.supporters;
+    }
 
-  <xs:complexType name="Idea">
-    <xs:sequence>
-      <xs:element name="supporters" maxOccurs="unbounded" type="xs:string"/>
-      <xs:element name="opponents" maxOccurs="unbounded" type="xs:string"/>
-    </xs:sequence>
-  </xs:complexType>
-</xs:schema>
+    /**
+     * @return the reference to the list of opponents
+     */
+    public List<String> getOpponents() {
+        if (opponents == null) {
+            opponents = new ArrayList<String>();
+        }
+        return this.opponents;
+    }
+}

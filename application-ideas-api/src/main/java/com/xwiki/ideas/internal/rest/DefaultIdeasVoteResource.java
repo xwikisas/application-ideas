@@ -36,35 +36,59 @@ import com.xwiki.ideas.IdeasException;
 import com.xwiki.ideas.IdeasManager;
 import com.xwiki.ideas.internal.IdeaMapper;
 import com.xwiki.ideas.model.jaxb.Idea;
-import com.xwiki.ideas.rest.IdeasResource;
+import com.xwiki.ideas.rest.IdeasVoteResource;
 
 /**
- * Default implementation of {@link IdeasResource}.
+ * Default implementation of {@link com.xwiki.ideas.rest.IdeasVoteResource}.
  *
  * @version $Id$
  * @since 1.14
  */
 @Component
-@Named("com.xwiki.ideas.internal.rest.DefaultIdeasResource")
+@Named("com.xwiki.ideas.internal.rest.DefaultIdeasVoteResource")
 @Singleton
-public class DefaultIdeasResource extends ModifiablePageResource implements IdeasResource
+public class DefaultIdeasVoteResource extends ModifiablePageResource implements IdeasVoteResource
 {
+    private static final String SUPPORTERS_GROUP = "supporters";
     @Inject
     private IdeasManager manager;
 
     @Inject
     private ContextualAuthorizationManager authorizationManager;
 
-    @Override public Idea get(String xwikiName, String spaceName, String pageName) throws XWikiRestException
+    @Override
+    public Idea vote(String xwikiName, String spaceName, String pageName, String voterGroup)
+        throws XWikiRestException
     {
         DocumentReference documentReference = new DocumentReference(pageName, getSpaceReference(spaceName, xwikiName));
-        if (!authorizationManager.hasAccess(Right.VIEW, documentReference)) {
+        if (!authorizationManager.hasAccess(Right.EDIT, documentReference)) {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
         try {
-            return IdeaMapper.from(manager.get(documentReference));
-        } catch (IdeasException e) {
+            if (manager.exists(documentReference)) {
+                return IdeaMapper.from(manager.vote(documentReference, SUPPORTERS_GROUP.equals(voterGroup)));
+            }
             throw new WebApplicationException(Response.Status.NOT_FOUND);
+        } catch (IdeasException e) {
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public Idea undoVote(String xwikiName, String spaceName, String pageName, String voterGroup)
+        throws XWikiRestException
+    {
+        DocumentReference documentReference = new DocumentReference(pageName, getSpaceReference(spaceName, xwikiName));
+        if (!authorizationManager.hasAccess(Right.EDIT, documentReference)) {
+            throw new WebApplicationException(Response.Status.FORBIDDEN);
+        }
+        try {
+            if (manager.exists(documentReference)) {
+                return IdeaMapper.from(manager.removeVote(documentReference, SUPPORTERS_GROUP.equals(voterGroup)));
+            }
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        } catch (IdeasException e) {
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 }

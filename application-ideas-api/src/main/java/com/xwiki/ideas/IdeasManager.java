@@ -23,7 +23,7 @@ import org.xwiki.component.annotation.Role;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.stability.Unstable;
 
-import com.xwiki.ideas.model.xjc.Idea;
+import com.xwiki.ideas.model.Idea;
 
 /**
  * Provides methods to interact with Ideas.
@@ -45,6 +45,23 @@ public interface IdeasManager
      * @throws IdeasException if the document does not exist or it doesn't have an Idea
      */
     Idea vote(DocumentReference documentReference, boolean pro) throws IdeasException;
+
+    /**
+     *
+     * @param documentReference a reference to a document that contains an Idea
+     * @param pro true if the user voted for or against the Idea
+     * @return an Object representation of the Idea after the vote has been removed
+     * @throws IdeasException if the document does not exist or it doesn't have an Idea
+     */
+    Idea removeVote(DocumentReference documentReference, boolean pro) throws IdeasException;
+
+    /**
+     * Retrieves the state of an Idea.
+     * @param documentReference a reference to a document that contains an Idea
+     * @return an Object representation of the Idea
+     * @throws IdeasException if the document does not exist or it doesn't have an Idea
+     */
+    Idea get(DocumentReference documentReference) throws IdeasException;
 
     /**
      * A function to check whether an Idea exists or not.

@@ -22,8 +22,10 @@ package com.xwiki.ideas.internal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -43,7 +45,7 @@ import com.xpn.xwiki.doc.XWikiDocument;
 import com.xpn.xwiki.objects.BaseObject;
 import com.xwiki.ideas.IdeasException;
 import com.xwiki.ideas.IdeasManager;
-import com.xwiki.ideas.model.xjc.Idea;
+import com.xwiki.ideas.model.Idea;
 
 /**
  * @version $Id$
@@ -81,39 +83,94 @@ public class DefaultIdeasManager implements IdeasManager
     private Provider<XWikiContext> contextProvider;
 
     @Inject
-    @Named("compact")
+    @Named("compactwiki")
     private EntityReferenceSerializer<String> serializer;
 
-    @Override public Idea vote(DocumentReference documentReference, boolean pro)
+    @Override
+    public Idea vote(DocumentReference documentReference, boolean pro)
         throws IdeasException
+    {
+        return
+            performIdeaActions(
+                documentReference,
+                pro,
+                (ideasObj, serializedUser, xcontext) -> {
+                    addVote(VOTERS_FOR_KEY, ideasObj, serializedUser, xcontext);
+                    removeVote(VOTERS_AGAINST_KEY, ideasObj, serializedUser, xcontext);
+                },
+                (ideasObj, serializedUser, xcontext) -> {
+                    addVote(VOTERS_AGAINST_KEY, ideasObj, serializedUser, xcontext);
+                    removeVote(VOTERS_FOR_KEY, ideasObj, serializedUser, xcontext);
+                }
+            );
+    }
+
+    @Override
+    public Idea removeVote(DocumentReference documentReference, boolean pro) throws IdeasException
+    {
+        return performIdeaActions(
+            documentReference,
+            pro,
+            (ideaObj, user, xcontext) -> removeVote(VOTERS_FOR_KEY, ideaObj, user, xcontext),
+            (ideaObj, user, xcontext) -> removeVote(VOTERS_AGAINST_KEY, ideaObj, user, xcontext)
+        );
+    }
+
+    @Override
+    public Idea get(DocumentReference documentReference) throws IdeasException
+    {
+        try {
+            XWikiContext xcontext = contextProvider.get();
+            XWiki xWiki = xcontext.getWiki();
+            XWikiDocument ideasDoc = xWiki.getDocument(documentReference, xcontext);
+            BaseObject ideasObj = ideasDoc.getXObject(IDEA_CLASS_REFERENCE);
+
+            List<String> proUsers = getListValue(VOTERS_FOR_KEY, ideasObj);
+            List<String> againstUsers = getListValue(VOTERS_AGAINST_KEY, ideasObj);
+            Idea result = new Idea();
+            result.getOpponents().addAll(againstUsers);
+            result.getSupporters().addAll(proUsers);
+            return result;
+        } catch (XWikiException e) {
+            throw new IdeasException(NOT_FOUND_ERROR, e);
+        }
+    }
+
+    @Override
+    public boolean exists(DocumentReference documentReference) throws IdeasException
+    {
+        try {
+            XWikiContext xcontext = contextProvider.get();
+            XWiki xWiki = xcontext.getWiki();
+            XWikiDocument ideasDoc = xWiki.getDocument(documentReference, xcontext);
+            BaseObject ideasObject = ideasDoc.getXObject(IDEA_CLASS_REFERENCE);
+            return ideasObject != null;
+        } catch (XWikiException e) {
+            throw new IdeasException(String.format(FAILED_LOAD_EXCEPTION, documentReference), e);
+        }
+    }
+    private Idea performIdeaActions(DocumentReference documentReference, boolean pro, IdeaAction proAction,
+        IdeaAction againstAction) throws IdeasException
     {
         XWikiContext xcontext = contextProvider.get();
         XWiki xWiki = xcontext.getWiki();
         try {
-            XWikiDocument mydoc = xWiki.getDocument(documentReference, xcontext);
+            XWikiDocument ideasDoc = xWiki.getDocument(documentReference, xcontext);
 
-            BaseObject ideasObj = mydoc.getXObject(IDEA_CLASS_REFERENCE);
+            BaseObject ideasObj = ideasDoc.getXObject(IDEA_CLASS_REFERENCE);
             DocumentReference user = xcontext.getUserReference();
-            if (!mydoc.isNew() && null != ideasObj) {
+            if (null != ideasObj) {
                 String serializedUser = serializer.serialize(user, documentReference.getWikiReference());
 
                 if (pro) {
-                    addVote(VOTERS_FOR_KEY, ideasObj, serializedUser, xcontext);
-                    removeVote(VOTERS_AGAINST_KEY, ideasObj, serializedUser, xcontext);
+                    proAction.perform(ideasObj, serializedUser, xcontext);
                 } else {
-                    addVote(VOTERS_AGAINST_KEY, ideasObj, serializedUser, xcontext);
-                    removeVote(VOTERS_FOR_KEY, ideasObj, serializedUser, xcontext);
+                    againstAction.perform(ideasObj, serializedUser, xcontext);
                 }
-                List<String> proUsers = getListValue(VOTERS_FOR_KEY, ideasObj);
-                List<String> againstUsers = getListValue(VOTERS_AGAINST_KEY, ideasObj);
-                Idea result = new Idea();
-                result.setNbagainst(againstUsers.size());
-                result.setNbvotes(proUsers.size());
-                result.getAgainst().addAll(againstUsers);
-                result.getSupporters().addAll(proUsers);
+                Idea result = get(documentReference);
 
                 // Save document
-                xWiki.saveDocument(mydoc, "New Vote", xcontext);
+                xWiki.saveDocument(ideasDoc, "New Vote", xcontext);
                 return result;
             } else {
                 throw new IdeasException(String.format(NOT_FOUND_ERROR, documentReference));
@@ -123,38 +180,22 @@ public class DefaultIdeasManager implements IdeasManager
         }
     }
 
-    @Override public boolean exists(DocumentReference documentReference) throws IdeasException
-    {
-        try {
-            XWikiContext xcontext = contextProvider.get();
-            XWiki xWiki = xcontext.getWiki();
-            XWikiDocument mydoc = xWiki.getDocument(documentReference, xcontext);
-            BaseObject ideasObject = mydoc.getXObject(IDEA_CLASS_REFERENCE);
-            return ideasObject != null;
-        } catch (XWikiException e) {
-            throw new IdeasException(String.format(FAILED_LOAD_EXCEPTION, documentReference), e);
-        }
-    }
-
     private void addVote(String voterKey, BaseObject ideasObj, String user, XWikiContext xcontext)
     {
-        List<String> userList = getListValue(voterKey, ideasObj);
+        Set<String> userSet = new HashSet<>(getListValue(voterKey, ideasObj));
 
-        if (userList.contains(user)) {
-            userList.remove(user);
-        } else {
-            userList.add(user);
-        }
-        ideasObj.set(voterKey, StringUtils.join(userList, COMMA), xcontext);
-        ideasObj.set(VOTER_KEY_TO_NR_KEY.get(voterKey), userList.size(), xcontext);
+        userSet.add(user);
+
+        ideasObj.set(voterKey, StringUtils.join(userSet, COMMA), xcontext);
+        ideasObj.set(VOTER_KEY_TO_NR_KEY.get(voterKey), userSet.size(), xcontext);
     }
 
     private void removeVote(String voterKey, BaseObject ideasObj, String user, XWikiContext xcontext)
     {
-        List<String> userList = getListValue(voterKey, ideasObj);
-        userList.remove(user);
-        ideasObj.set(voterKey, StringUtils.join(userList, COMMA), xcontext);
-        ideasObj.set(VOTER_KEY_TO_NR_KEY.get(voterKey), userList.size(), xcontext);
+        Set<String> userSet = new HashSet<>(getListValue(voterKey, ideasObj));
+        userSet.remove(user);
+        ideasObj.set(voterKey, StringUtils.join(userSet, COMMA), xcontext);
+        ideasObj.set(VOTER_KEY_TO_NR_KEY.get(voterKey), userSet.size(), xcontext);
     }
 
     private List<String> getListValue(String voterKey, BaseObject ideasObj)

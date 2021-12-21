@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
- *
+/*
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
  *
@@ -18,17 +16,32 @@
  * License along with this software; if not, write to the Free
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+package com.xwiki.ideas.internal;
+
+import com.xwiki.ideas.model.jaxb.Idea;
+
+/**
+ * A utility class used to convert an {@link com.xwiki.ideas.model.Idea} object to an {@link Idea} one.
  *
--->
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.xwiki.com/ideas/model/jaxb"
-  xmlns:idea="http://www.xwiki.com/ideas/model/jaxb" elementFormDefault="qualified">
+ * @version $Id$
+ * @since 1.14
+ */
+public final class IdeaMapper
+{
+    private IdeaMapper()
+    {
+    }
 
-  <xs:element name="idea" type="idea:Idea"/>
-
-  <xs:complexType name="Idea">
-    <xs:sequence>
-      <xs:element name="supporters" maxOccurs="unbounded" type="xs:string"/>
-      <xs:element name="opponents" maxOccurs="unbounded" type="xs:string"/>
-    </xs:sequence>
-  </xs:complexType>
-</xs:schema>
+    /**
+     * @param idea an Idea that we want to convert
+     * @return a clone of the Idea
+     */
+    public static Idea from(com.xwiki.ideas.model.Idea idea)
+    {
+        Idea convertedIdea = new Idea();
+        convertedIdea.getSupporters().addAll(idea.getSupporters());
+        convertedIdea.getOpponents().addAll(idea.getOpponents());
+        return convertedIdea;
+    }
+}

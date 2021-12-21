@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
- *
+/*
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
  *
@@ -18,17 +16,24 @@
  * License along with this software; if not, write to the Free
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+package com.xwiki.ideas.internal;
+
+import com.xpn.xwiki.XWikiContext;
+import com.xpn.xwiki.objects.BaseObject;
+
+/**
+ * An interface that represents an action that can be performed over the contents of an Idea.
  *
--->
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.xwiki.com/ideas/model/jaxb"
-  xmlns:idea="http://www.xwiki.com/ideas/model/jaxb" elementFormDefault="qualified">
-
-  <xs:element name="idea" type="idea:Idea"/>
-
-  <xs:complexType name="Idea">
-    <xs:sequence>
-      <xs:element name="supporters" maxOccurs="unbounded" type="xs:string"/>
-      <xs:element name="opponents" maxOccurs="unbounded" type="xs:string"/>
-    </xs:sequence>
-  </xs:complexType>
-</xs:schema>
+ * @version $Id$
+ * @since 1.14
+ */
+public interface IdeaAction
+{
+    /**
+     * @param ideasObj the Idea containing the data we want to change
+     * @param user the user that performs the changes
+     * @param xcontext the current XWiki context
+     */
+    void perform(BaseObject ideasObj, String user, XWikiContext xcontext);
+}

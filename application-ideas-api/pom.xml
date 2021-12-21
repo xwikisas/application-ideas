@@ -66,8 +66,7 @@
     <plugins>
       <plugin>
         <groupId>org.jvnet.jaxb2.maven2</groupId>
-        <artifactId>maven-jaxb22-plugin</artifactId>
-        <version>0.13.3</version>
+        <artifactId>maven-jaxb2-plugin</artifactId>
         <executions>
           <execution>
             <id>generate</id>
@@ -87,7 +86,7 @@
             <id>default</id>
             <configuration>
               <excludes>
-                com/xwiki/ideas/model/xjc/*.java
+                com/xwiki/ideas/model/jaxb/*.java
               </excludes>
             </configuration>
           </execution>
