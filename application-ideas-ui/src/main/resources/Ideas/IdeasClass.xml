@@ -567,7 +567,7 @@
           var action = 'POST';
         }
         // Add the vote type to the url
-        url = url + '/' + voterGroup;
+        url = url + '?value=' + (voterGroup == 'supporters');
 
         // Ajax request.
         $.ajax({

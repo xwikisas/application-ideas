@@ -106,11 +106,11 @@ public class DefaultIdeasManager implements IdeasManager
     }
 
     @Override
-    public Idea removeVote(DocumentReference documentReference, boolean pro) throws IdeasException
+    public Idea removeVote(DocumentReference documentReference) throws IdeasException
     {
         return performIdeaActions(
             documentReference,
-            pro,
+            null,
             (ideaObj, user, xcontext) -> removeVote(VOTERS_FOR_KEY, ideaObj, user, xcontext),
             (ideaObj, user, xcontext) -> removeVote(VOTERS_AGAINST_KEY, ideaObj, user, xcontext)
         );
@@ -149,7 +149,8 @@ public class DefaultIdeasManager implements IdeasManager
             throw new IdeasException(String.format(FAILED_LOAD_EXCEPTION, documentReference), e);
         }
     }
-    private Idea performIdeaActions(DocumentReference documentReference, boolean pro, IdeaAction proAction,
+
+    private Idea performIdeaActions(DocumentReference documentReference, Boolean pro, IdeaAction proAction,
         IdeaAction againstAction) throws IdeasException
     {
         XWikiContext xcontext = contextProvider.get();
@@ -162,7 +163,10 @@ public class DefaultIdeasManager implements IdeasManager
             if (null != ideasObj) {
                 String serializedUser = serializer.serialize(user, documentReference.getWikiReference());
 
-                if (pro) {
+                if (pro == null) {
+                    proAction.perform(ideasObj, serializedUser, xcontext);
+                    againstAction.perform(ideasObj, serializedUser, xcontext);
+                } else if (pro) {
                     proAction.perform(ideasObj, serializedUser, xcontext);
                 } else {
                     againstAction.perform(ideasObj, serializedUser, xcontext);

@@ -37,7 +37,6 @@ public interface IdeasManager
 {
     /**
      * Registers a vote for an Idea on the behalf of the current user. The vote can be either for or against.
-     * Registering the same vote twice will remove the vote from the Idea.
      *
      * @param documentReference a reference to a document that contains an Idea
      * @param pro true if the user agrees with the Idea; false otherwise
@@ -47,16 +46,15 @@ public interface IdeasManager
     Idea vote(DocumentReference documentReference, boolean pro) throws IdeasException;
 
     /**
-     *
      * @param documentReference a reference to a document that contains an Idea
-     * @param pro true if the user voted for or against the Idea
      * @return an Object representation of the Idea after the vote has been removed
      * @throws IdeasException if the document does not exist or it doesn't have an Idea
      */
-    Idea removeVote(DocumentReference documentReference, boolean pro) throws IdeasException;
+    Idea removeVote(DocumentReference documentReference) throws IdeasException;
 
     /**
      * Retrieves the state of an Idea.
+     *
      * @param documentReference a reference to a document that contains an Idea
      * @return an Object representation of the Idea
      * @throws IdeasException if the document does not exist or it doesn't have an Idea

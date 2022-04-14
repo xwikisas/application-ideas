@@ -67,4 +67,40 @@ public class DefaultIdeasResource extends ModifiablePageResource implements Idea
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
     }
+
+    @Override
+    public Idea vote(String xwikiName, String spaceName, String pageName, String value)
+        throws XWikiRestException
+    {
+        DocumentReference documentReference = new DocumentReference(pageName, getSpaceReference(spaceName, xwikiName));
+        if (!authorizationManager.hasAccess(Right.EDIT, documentReference)) {
+            throw new WebApplicationException(Response.Status.FORBIDDEN);
+        }
+        try {
+            if (manager.exists(documentReference)) {
+                return IdeaMapper.from(manager.vote(documentReference, Boolean.valueOf(value)));
+            }
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        } catch (IdeasException e) {
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public Idea removeVote(String xwikiName, String spaceName, String pageName)
+        throws XWikiRestException
+    {
+        DocumentReference documentReference = new DocumentReference(pageName, getSpaceReference(spaceName, xwikiName));
+        if (!authorizationManager.hasAccess(Right.EDIT, documentReference)) {
+            throw new WebApplicationException(Response.Status.FORBIDDEN);
+        }
+        try {
+            if (manager.exists(documentReference)) {
+                return IdeaMapper.from(manager.removeVote(documentReference));
+            }
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        } catch (IdeasException e) {
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

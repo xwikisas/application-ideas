@@ -22,21 +22,26 @@ package com.xwiki.ideas.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.xwiki.stability.Unstable;
+
 /**
  * Represents a serializable version of a vote result.
  *
  * @version $Id$
  * @since 1.14
  */
+@Unstable
 public class Idea
 {
     protected List<String> supporters;
+
     protected List<String> opponents;
 
     /**
      * @return the reference to the list of supporters
      */
-    public List<String> getSupporters() {
+    public List<String> getSupporters()
+    {
         if (supporters == null) {
             supporters = new ArrayList<String>();
         }
@@ -46,7 +51,8 @@ public class Idea
     /**
      * @return the reference to the list of opponents
      */
-    public List<String> getOpponents() {
+    public List<String> getOpponents()
+    {
         if (opponents == null) {
             opponents = new ArrayList<String>();
         }

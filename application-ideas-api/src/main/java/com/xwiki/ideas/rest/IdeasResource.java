@@ -19,9 +19,12 @@
  */
 package com.xwiki.ideas.rest;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
 
 import org.xwiki.rest.XWikiRestException;
 import org.xwiki.stability.Unstable;
@@ -46,6 +49,42 @@ public interface IdeasResource
      */
     @GET
     Idea get(
+        @PathParam("wikiName") String xwikiName,
+        @PathParam("spaceName") String spaceName,
+        @PathParam("pageName") String pageName
+    ) throws XWikiRestException;
+
+    /**
+     * Casts the vote of the current user to the page containing an idea.
+     *
+     * @param xwikiName The name of the wiki in which the page resides
+     * @param spaceName The spaces associated with the page
+     * @param pageName The name of the page
+     * @param value The value of the vote, usually true or false, to vote for or against the Idea
+     * @return A response containing a serialized version of a {@link com.xwiki.ideas.model.jaxb.Idea} in case of
+     *     success or an appropriate response code otherwise.
+     * @throws XWikiRestException when the document is missing or lacks an Ideas poll
+     */
+    @POST
+    Idea vote(
+        @PathParam("wikiName") String xwikiName,
+        @PathParam("spaceName") String spaceName,
+        @PathParam("pageName") String pageName,
+        @QueryParam("value") String value
+    ) throws XWikiRestException;
+
+    /**
+     * Removes the vote of the current user from the page containing the desired idea.
+     *
+     * @param xwikiName The name of the wiki in which the page resides
+     * @param spaceName The spaces associated with the page
+     * @param pageName The name of the page
+     * @return A response containing a serialized version of a {@link com.xwiki.ideas.model.jaxb.Idea} in case of
+     *     success or an appropriate response code otherwise.
+     * @throws XWikiRestException when the document is missing or lacks an Ideas poll
+     */
+    @DELETE
+    Idea removeVote(
         @PathParam("wikiName") String xwikiName,
         @PathParam("spaceName") String spaceName,
         @PathParam("pageName") String pageName
