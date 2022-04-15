@@ -33,18 +33,15 @@ import org.xwiki.stability.Unstable;
 @Unstable
 public class Idea
 {
-    protected List<String> supporters;
+    protected final List<String> supporters = new ArrayList<>();
 
-    protected List<String> opponents;
+    protected final List<String> opponents = new ArrayList<>();
 
     /**
      * @return the reference to the list of supporters
      */
     public List<String> getSupporters()
     {
-        if (supporters == null) {
-            supporters = new ArrayList<String>();
-        }
         return this.supporters;
     }
 
@@ -53,9 +50,6 @@ public class Idea
      */
     public List<String> getOpponents()
     {
-        if (opponents == null) {
-            opponents = new ArrayList<String>();
-        }
         return this.opponents;
     }
 }

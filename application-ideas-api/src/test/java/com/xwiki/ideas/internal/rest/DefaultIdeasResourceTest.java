@@ -85,17 +85,17 @@ public class DefaultIdeasResourceTest
         when(this.xcontextProvider.get()).thenReturn(this.xWikiContext);
     }
 
-//    @Test
-//    void castVoteTest() throws IdeasException, XWikiRestException
-//    {
-//        int nOfVotes = 1;
-//        Idea voteResult = new Idea();
-//        voteResult.getSupporters().add("");
-//        when(authorizationManager.hasAccess(any(), any())).thenReturn(true);
-//        when(manager.exists(any())).thenReturn(true);
-//        when(manager.vote(any(), anyBoolean())).thenReturn(voteResult);
-//        com.xwiki.ideas.model.jaxb.Idea response = this.ideasResource.vote("wiki", "space", "page", true);
-//
-//        assertEquals(nOfVotes, response.getSupporters().size());
-//    }
+    @Test
+    void castVoteTest() throws IdeasException, XWikiRestException
+    {
+        int nOfVotes = 1;
+        Idea voteResult = new Idea();
+        voteResult.getSupporters().add("");
+        when(authorizationManager.hasAccess(any(), any())).thenReturn(true);
+        when(manager.exists(any())).thenReturn(true);
+        when(manager.vote(any(), anyBoolean())).thenReturn(voteResult);
+        com.xwiki.ideas.model.jaxb.Idea response = this.ideasResource.vote("wiki", "space", "page", "true");
+
+        assertEquals(nOfVotes, response.getSupporters().size());
+    }
 }

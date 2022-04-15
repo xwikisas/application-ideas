@@ -547,88 +547,65 @@
     var reflink = button.attr('class').split(' ')[1];
     var opp = button.data('opp');
     var refresh = button.data('ref');
-    // Determine the vote type that was cast
-    if (voteClass == 'voted-pro') {
-      var voterGroup = 'supporters';
-    } else {
-      var voterGroup = 'opponents';
-    }
+    // Determine url and the action.
+    var valueParam = voteClass == 'voted-pro';
+    var action = button.hasClass(voteClass) ? 'DELETE' : 'PUT';
+    url = url + '?value=' + valueParam;
+    // Ajax request.
     $.ajax({
       headers: {
         Accept: "application/json"
       },
       url: url,
-      type: 'GET',
-      success: function (idea) {
-        if (idea[voterGroup].includes(xm.userReference.toString())
-          || idea[voterGroup].includes(xm.userReference.relativeTo(xm.userReference.getRoot()).toString())) {
-          var action = 'DELETE';
-        } else {
-          var action = 'POST';
-        }
-        // Add the vote type to the url
-        url = url + '?value=' + (voterGroup == 'supporters');
-
-        // Ajax request.
-        $.ajax({
-          headers: {
-            Accept: "application/json"
-          },
-          url: url,
-          type: action,
-          success: function (response) {
-            var voted = Array.from($('.' + reflink));
-            var opponent = Array.from($('.' + opp));
-            var supportText = $('.result-pro').next();
-            var againstText = $('.result-against').next();
-            // Changing the class acording to the vote. Updating the text that shows to the user which one is his choice.
-            voted.forEach(function (e) {
-              if ($(e).hasClass(voteClass)) {
-                $(e).removeClass(voteClass);
-                supportText.empty();
-                againstText.empty();
-              } else {
-                $(e).addClass(voteClass);
-                if (voteClass == 'voted-pro') {
-                  supportText.html("$services.localization.render('ideas.ideassheet.voted')");
-                  againstText.empty();
-                } else {
-                  againstText.html("$services.localization.render('ideas.ideassheet.votedagainst')");
-                  supportText.empty();
-                }
-              }
-            });
-            opponent.forEach(function (e) {
-              $(e).removeClass(againstClass);
-            });
-            // Updating the votes. Refreshing the list of users that have voted with an idea.
+      type: action,
+      success: function (response) {
+        var voted = Array.from($('.' + reflink));
+        var opponent = Array.from($('.' + opp));
+        var supportText = $('.result-pro').next();
+        var againstText = $('.result-against').next();
+        // Changing the class acording to the vote. Updating the text that shows to the user which one is his choice.
+        voted.forEach(function (e) {
+          if ($(e).hasClass(voteClass)) {
+            $(e).removeClass(voteClass);
+            supportText.empty();
+            againstText.empty();
+          } else {
+            $(e).addClass(voteClass);
             if (voteClass == 'voted-pro') {
-              var nbv = response.supporters.length;
-              var nbop = response.opponents.length;
+              supportText.html("$services.localization.render('ideas.ideassheet.voted')");
+              againstText.empty();
             } else {
-              var nbv = response.opponents.length;
-              var nbop = response.supporters.length;
+              againstText.html("$services.localization.render('ideas.ideassheet.votedagainst')");
+              supportText.empty();
             }
-            $('#pro-participants').load(XWiki.currentDocument.getURL('get') + ' #pro-participants&gt;*', '');
-            $('#against-participants').load(XWiki.currentDocument.getURL('get') + ' #against-participants&gt;*', '');
-            voted.forEach(function (e) {
-              $(e).html(nbv);
-            });
-            opponent.forEach(function (e) {
-              $(e).html(nbop);
-            });
-            if (!refresh) {
-              location.reload();
-            }
-          },
-          error: function (response) {
-            new XWiki.widgets.Notification(
-              "$services.localization.render('ideas.ideasclass.vote.error')", 'error');
           }
         });
+        opponent.forEach(function (e) {
+          $(e).removeClass(againstClass);
+        });
+        // Updating the votes. Refreshing the list of users that have voted with an idea.
+        if (voteClass == 'voted-pro') {
+          var nbv = response.supporters.length;
+          var nbop = response.opponents.length;
+        } else {
+          var nbv = response.opponents.length;
+          var nbop = response.supporters.length;
+        }
+        $('#pro-participants').load(XWiki.currentDocument.getURL('get') + ' #pro-participants>*', '');
+        $('#against-participants').load(XWiki.currentDocument.getURL('get') + ' #against-participants>*', '');
+        voted.forEach(function (e) {
+          $(e).html(nbv);
+        });
+        opponent.forEach(function (e) {
+          $(e).html(nbop);
+        });
+        if (!refresh) {
+          location.reload();
+        }
       },
       error: function (response) {
-        console.log('error');
+        new XWiki.widgets.Notification(
+          "$services.localization.render('ideas.ideasclass.vote.error')", 'error');
       }
     });
     return false;

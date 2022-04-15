@@ -174,7 +174,7 @@ public class DefaultIdeasManager implements IdeasManager
                 Idea result = get(documentReference);
 
                 // Save document
-                xWiki.saveDocument(ideasDoc, "New Vote", xcontext);
+                xWiki.saveDocument(ideasDoc, "Updated Votes", xcontext);
                 return result;
             } else {
                 throw new IdeasException(String.format(NOT_FOUND_ERROR, documentReference));

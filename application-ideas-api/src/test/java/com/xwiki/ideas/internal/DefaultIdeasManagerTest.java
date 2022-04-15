@@ -53,7 +53,7 @@ import static org.mockito.Mockito.when;
  * @since 1.14
  */
 @ComponentTest
-public class DefaultIdeasManagerTest
+class DefaultIdeasManagerTest
 {
     @InjectMockComponents
     private DefaultIdeasManager manager;
@@ -107,7 +107,7 @@ public class DefaultIdeasManagerTest
         when(ideaObj.getStringValue(DefaultIdeasManager.VOTERS_AGAINST_KEY)).thenReturn("");
         this.manager.vote(input, true);
 
-        verify(this.xWiki).saveDocument(this.document, "New Vote", this.xWikiContext);
+        verify(this.xWiki).saveDocument(this.document, "Updated Votes", this.xWikiContext);
     }
 
 }
