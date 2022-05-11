@@ -569,9 +569,9 @@
         againstText.empty();
         if (voted.hasClass(voteClass)) {
           if (voteClass === 'voted-pro') {
-            supportText.html("$services.localization.render('ideas.ideassheet.voted')");
+            supportText.html($jsontool.serialize($services.localization.render('ideas.ideassheet.voted')));
           } else {
-            againstText.html("$services.localization.render('ideas.ideassheet.votedagainst')");
+            againstText.html($jsontool.serialize($services.localization.render('ideas.ideassheet.votedagainst')));
           }
         }
 
