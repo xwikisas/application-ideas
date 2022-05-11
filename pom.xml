@@ -28,10 +28,10 @@
     <version>11.10</version>
   </parent>
   <groupId>com.xwiki.ideas</groupId>
-  <artifactId>application-ideas</artifactId>
+  <artifactId>application-ideas-pom</artifactId>
   <version>1.13.3-SNAPSHOT</version>
-  <packaging>xar</packaging>
-  <name>Ideas Application</name>
+  <packaging>pom</packaging>
+  <name>Ideas Application Parent POM</name>
   <description>Empower innovation inside your team. Make proposals and share ideas. Vote on other users initiatives. The app can be purchased individually or part of the XWiki Pro package. Try it free.</description>
   <issueManagement>
     <system>GitHub</system>
@@ -44,30 +44,8 @@
     <tag>HEAD</tag>
   </scm>
   <properties>
-    <licensing.version>1.22</licensing.version>
-    <!-- The list of documents that have an implicit unlimited free license. The users can view these documents without
-      buying a license or getting a trial license, but they cannot edit or delete them. -->
-    <xwiki.extension.licensing.publicDocuments>
-      Ideas.WebHome
-    </xwiki.extension.licensing.publicDocuments>
-    <!-- Name to display by the Extension Manager -->
-    <xwiki.extension.name>Ideas Application (Pro)</xwiki.extension.name>
-    <xwiki.extension.category>application</xwiki.extension.category>
-    <!-- Don't run CLIRR here since there's no Java code. -->
-    <xwiki.clirr.skip>true</xwiki.clirr.skip>
-
-    <!-- Components -->
-    <xwiki.extension.components>
-      org.xwiki.rendering.macro.Macro/ideasrecent
-    </xwiki.extension.components>
+    <licensing.version>1.22.1</licensing.version>
   </properties>
-  <dependencies>
-    <dependency>
-      <groupId>com.xwiki.licensing</groupId>
-      <artifactId>application-licensing-licensor-api</artifactId>
-      <version>${licensing.version}</version>
-    </dependency>
-  </dependencies>
   <!-- Even though this repository is already declared in the parent POM, we still explicitly redeclare it for
        convenience. This makes it simpler to build this project without having to declare this repository in one's own
        Maven settings.xml file. In the future We may decide to remove this in the future and make it a rule to have the
@@ -85,4 +63,8 @@
       </snapshots> 
     </repository>
   </repositories>
+  <modules>
+    <module>application-ideas-api</module>
+    <module>application-ideas-ui</module>
+  </modules>
 </project>
