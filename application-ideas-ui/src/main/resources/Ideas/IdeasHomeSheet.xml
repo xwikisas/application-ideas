@@ -47,7 +47,7 @@ $xwiki.ssx.use("Ideas.IdeasClass")
   'doc.fullName': {'type': 'text', 'headerClass' : 'hidden'},
   'nbvotes': {"type":"number","size":10,"html":true},
   'nbagainst': {"type":"number","size":10,"html":true},
-  'nbestimate': {"type":"number","size":10,"html":true},
+  'cost': {"type":"text","size":10,"html":true},
   'doc.title': {"type":"text","size":20,"link":"view"},
   'status': {"type":"list","size":20}, 
   'priority': {"type":"list","size":20},
@@ -65,7 +65,7 @@ $xwiki.ssx.use("Ideas.IdeasClass")
   'selectedColumn': 'status',
   'defaultOrder': 'asc'
 })
-#set ($columns = ['doc.fullName', 'nbvotes','nbagainst','doc.title', 'nbestimate','status','priority','assignement','doc.date', 'doc.author', '_actions'])
+#set ($columns = ['doc.fullName', 'nbvotes','nbagainst','doc.title', 'cost','status','priority','assignement','doc.date', 'doc.author', '_actions'])
 #livetable($doc $columns $columnsProperties $options)
 {{/velocity}}</content>
 </xwikidoc>

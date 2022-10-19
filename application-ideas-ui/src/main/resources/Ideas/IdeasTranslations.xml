@@ -55,7 +55,7 @@ Ideas.IdeasClass_priority=Priority
 Ideas.IdeasClass_priority_high=High
 Ideas.IdeasClass_priority_medium=Medium
 Ideas.IdeasClass_priority_low=Low
-Ideas.IdeasClass_nbestimate=Estimated cost
+Ideas.IdeasClass_cost=Estimated cost
 Ideas.IdeasClass_assignement=Assignee
 
 # Live table generic keys
@@ -82,7 +82,7 @@ ideas.livetable.nbvotes=Yes
 ideas.livetable.nbagainst=No
 ideas.livetable.supporters=Supporters
 ideas.livetable.against=Against people
-ideas.livetable.nbestimate=Estimated cost
+ideas.livetable.cost=Estimated cost
 ideas.livetable.status=Status
 ideas.livetable.assignement=Assignee
 ideas.livetable.priority=Priority

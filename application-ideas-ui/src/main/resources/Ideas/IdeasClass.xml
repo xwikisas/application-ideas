@@ -49,8 +49,12 @@
     <against>
       <cache>0</cache>
       <customDisplay/>
+      <defaultValue/>
       <disabled>0</disabled>
       <displayType>input</displayType>
+      <freeText/>
+      <hint/>
+      <largeStorage>0</largeStorage>
       <multiSelect>1</multiSelect>
       <name>against</name>
       <number>6</number>
@@ -70,8 +74,12 @@
     <assignement>
       <cache>0</cache>
       <customDisplay/>
+      <defaultValue/>
       <disabled>0</disabled>
       <displayType>input</displayType>
+      <freeText/>
+      <hint/>
+      <largeStorage>0</largeStorage>
       <multiSelect>0</multiSelect>
       <name>assignement</name>
       <number>7</number>
@@ -91,6 +99,7 @@
     <content1>
       <customDisplay>{{include reference="AppWithinMinutes.Content"/}}</customDisplay>
       <disabled>0</disabled>
+      <hint/>
       <name>content1</name>
       <number>2</number>
       <prettyName>Description</prettyName>
@@ -100,6 +109,28 @@
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.ComputedFieldClass</classType>
     </content1>
+    <cost>
+      <customDisplay>{{velocity}}
+{{html}}
+#if($type == 'edit')
+  &lt;input class="form-control" id="Ideas.IdeasClass_0_cost" name="Ideas.IdeasClass_0_cost" type="text" value="${value}" /&gt;
+#elseif ($type == 'view')
+  $!{value}
+#end
+{{/html}}
+{{/velocity}}</customDisplay>
+      <disabled>0</disabled>
+      <hint/>
+      <name>cost</name>
+      <number>8</number>
+      <picker>0</picker>
+      <prettyName>EstimatedCost</prettyName>
+      <size>30</size>
+      <unmodifiable>0</unmodifiable>
+      <validationMessage/>
+      <validationRegExp/>
+      <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+    </cost>
     <nbagainst>
       <customDisplay>{{velocity}}
   $xwiki.jsx.use("Ideas.IdeasClass")
@@ -136,6 +167,7 @@
   #end
 {{/velocity}}</customDisplay>
       <disabled>0</disabled>
+      <hint/>
       <name>nbagainst</name>
       <number>4</number>
       <numberType>integer</numberType>
@@ -146,27 +178,6 @@
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
     </nbagainst>
-    <nbestimate>
-      <customDisplay>{{velocity}}
-{{html}}
-#if($type == 'edit')
-  &lt;input class="form-control" id="Ideas.IdeasClass_0_nbestimate" name="Ideas.IdeasClass_0_nbestimate" type="number" value="${value}" /&gt;
-#elseif ($type == 'view')
-  $!{value}
-#end
-{{/html}}
-{{/velocity}}</customDisplay>
-      <disabled>0</disabled>
-      <name>nbestimate</name>
-      <number>8</number>
-      <numberType>long</numberType>
-      <prettyName>Estimated Cost</prettyName>
-      <size>30</size>
-      <unmodifiable>0</unmodifiable>
-      <validationMessage/>
-      <validationRegExp/>
-      <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
-    </nbestimate>
     <nbvotes>
       <customDisplay>{{velocity}}
   $xwiki.jsx.use("Ideas.IdeasClass")
@@ -203,6 +214,7 @@
   #end
 {{/velocity}}</customDisplay>
       <disabled>0</disabled>
+      <hint/>
       <name>nbvotes</name>
       <number>3</number>
       <numberType>integer</numberType>
@@ -216,8 +228,12 @@
     <priority>
       <cache>0</cache>
       <customDisplay/>
+      <defaultValue/>
       <disabled>0</disabled>
       <displayType>select</displayType>
+      <freeText/>
+      <hint/>
+      <largeStorage>0</largeStorage>
       <multiSelect>0</multiSelect>
       <name>priority</name>
       <number>10</number>
@@ -237,8 +253,12 @@
     <status>
       <cache>0</cache>
       <customDisplay/>
+      <defaultValue/>
       <disabled>0</disabled>
       <displayType>select</displayType>
+      <freeText/>
+      <hint/>
+      <largeStorage>0</largeStorage>
       <multiSelect>0</multiSelect>
       <name>status</name>
       <number>9</number>
@@ -258,8 +278,12 @@
     <supporters>
       <cache>0</cache>
       <customDisplay/>
+      <defaultValue/>
       <disabled>0</disabled>
       <displayType>select</displayType>
+      <freeText/>
+      <hint/>
+      <largeStorage>0</largeStorage>
       <multiSelect>1</multiSelect>
       <name>supporters</name>
       <number>5</number>
@@ -279,6 +303,7 @@
     <title1>
       <customDisplay>{{include reference="AppWithinMinutes.Title"/}}</customDisplay>
       <disabled>0</disabled>
+      <hint/>
       <name>title1</name>
       <number>1</number>
       <prettyName>Idea</prettyName>
@@ -584,8 +609,8 @@
           var nbv = response.opponents.length;
           var nbop = response.supporters.length;
         }
-        $('#pro-participants').load(XWiki.currentDocument.getURL('get') + ' #pro-participants>*', '');
-        $('#against-participants').load(XWiki.currentDocument.getURL('get') + ' #against-participants>*', '');
+        $('#pro-participants').load(XWiki.currentDocument.getURL('get') + ' #pro-participants&gt;*', '');
+        $('#against-participants').load(XWiki.currentDocument.getURL('get') + ' #against-participants&gt;*', '');
         voted.html(nbv);
         opponent.html(nbop);
         if (refresh) {
