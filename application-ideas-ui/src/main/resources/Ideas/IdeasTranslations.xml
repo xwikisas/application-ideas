@@ -115,7 +115,18 @@ rendering.macro.ideasrecent.parameter.limit.description=Number of maximum entrie
 
 # Template Provider
 templateProvider.idea.name=Idea
-templateProvider.idea.description=Share an idea</content>
+templateProvider.idea.description=Share an idea
+
+# Migrations
+ideas.home.migrations=Some properties have been changed since your last upgrade. Please follow the next link/s to complete the migration:
+ideas.migrations.programming=You need programming rights for executing the migration. More informations [[here&gt;&gt;{0}]]:
+ideas.migrations.wiki=Wiki:
+ideas.migrations.number=Number of documents to be modified:
+ideas.migrations.document=Document
+ideas.migrations.status=Status
+ideas.migrations.properties=Properties to be updated after executing
+ideas.migrations.deprecatedProps=No deprecated properties
+ideas.migrations.button=Execute the modification</content>
   <object>
     <name>Ideas.IdeasTranslations</name>
     <number>0</number>

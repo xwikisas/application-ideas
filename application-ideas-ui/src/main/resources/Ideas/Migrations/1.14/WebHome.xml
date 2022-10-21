@@ -1,0 +1,116 @@
+<?xml version="1.1" encoding="UTF-8"?>
+
+<!--
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+-->
+
+<xwikidoc version="1.3" reference="Ideas.Migrations.1\.14.WebHome" locale="">
+  <web>Ideas.Migrations.1\.14</web>
+  <name>WebHome</name>
+  <language/>
+  <defaultLanguage/>
+  <translation>0</translation>
+  <creator>xwiki:XWiki.Admin</creator>
+  <parent>Ideas.Migrations.WebHome</parent>
+  <author>xwiki:XWiki.Admin</author>
+  <contentAuthor>xwiki:XWiki.Admin</contentAuthor>
+  <version>1.1</version>
+  <title>1.14</title>
+  <comment/>
+  <minorEdit>false</minorEdit>
+  <syntaxId>xwiki/2.1</syntaxId>
+  <hidden>false</hidden>
+  <content>{{velocity}}
+{{info}}This migrator moves the number value from the **nbestimate** property of Ideas class, converts into string value, and stores into **cost** property.{{/info}}
+
+#macro (handleWiki $w)
+  #set ($ideasClass = 'Ideas.IdeasClass')
+  #set ($ideasClassDoc = $xwiki.getDocument("${w}:$ideasClass"))
+  #set ($wikiPrettyName = $services.wiki.getById($w).prettyName)
+  #if ("$!wikiPrettyName.trim()" == '')
+    #set ($wikiPrettyName = $w)
+  #end
+  #if ($ideasClassDoc)
+    #set ($ideas = $services.query.xwql("from doc.object($ideasClass) as ideas order by doc.fullName asc").setWiki($w).addFilter('unique').execute())
+    $services.localization.render('ideas.migrations.wiki') $wikiPrettyName
+    $services.localization.render('ideas.migrations.number') $ideas.size()
+
+    ## Table header
+    |=$services.localization.render('ideas.migrations.document')##
+    |=$services.localization.render('ideas.migrations.status')##
+    |=$services.localization.render('ideas.migrations.properties')
+    #foreach ($md in $ideas)
+      #set ($mDocRef = $services.model.resolveDocument($md, $services.model.createWikiReference($w)))
+      #set ($mDoc = $xwiki.getDocument($mDocRef))
+      #set ($ideasObj = $mDoc.getObject($ideasClass))
+      #set ($nbestimate = $ideasObj.getProperty('nbestimate').value)
+      #set ($saved = $NULL)
+      #if($nbestimate)
+        #set($stringCost = "$nbestimate")
+        ## Save the idea's cost value after converting to the string.
+        #set ($saved = 'Would be saved on actual run')
+        #if ("$!request.confirm" == 'true')
+          #set($discard = $ideasObj.set('cost', $stringCost))
+          #set ($discard = $mDoc.save('Move the idea''s estimatecost converted value to the cost'))
+          #set ($saved = 'Saved')
+        #end
+      #end
+      ## Clean the deprecated properties, if there are any
+      #set ($documentToClean = $xwiki.xWiki.getDocument($mDocRef, $xcontext.context))
+      #set ($deprecatedBaseObject = $documentToClean.getObject($ideasClass))
+      #set ($needsSave = false)
+      #foreach ($baseProp in $deprecatedBaseObject.getXClass($xcontext.context).getDeprecatedObjectProperties($deprecatedBaseObject))
+        #if ($baseProp.name == 'nbestimate')
+          #set ($cleanedProps = $baseProp.name)
+          #if ("$!request.confirm" == 'true')
+            #set ($discard = $deprecatedBaseObject.removeField($baseProp.name))
+            #set ($needsSave = true)
+         #end
+        #end
+      #end
+      #if ("$!request.confirm" == 'true' &amp;&amp; $needsSave)
+        ## Set the new author
+        #set ($discard = $documentToClean.setAuthorReference($xcontext.context.userReference))
+        #set ($discard = $xwiki.xWiki.saveDocument($documentToClean,
+          $services.localization.render('core.model.xobject.synchronizeObjects.versionSummary'), true, $xcontext.context))
+      #end
+      |[[$mDoc.prefixedFullName]]|$!saved|$cleanedProps
+    #end
+
+  #end
+#end
+
+#if ("$!request.confirm" != 'true')
+  {{html}}
+    &lt;a href="$doc.getURL('view', 'confirm=true')" class='button'&gt;
+      $services.localization.render('ideas.migrations.button')
+    &lt;/a&gt;
+  {{/html}}
+#end
+
+#set ($wiki = "$!request.wiki")
+#if ($wiki != '')
+  #handleWiki($wiki)
+#else
+  #foreach ($wiki in $services.wiki.getAllIds())
+    #handleWiki($wiki)
+  #end
+#end
+{{/velocity}}</content>
+</xwikidoc>
