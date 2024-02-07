@@ -35,6 +35,7 @@
   <!--  As the API exposes a REST API, we need to install this on farm for all the sub-wikis to have access to the
           entry point -->
     <xwiki.extension.namespaces>{root}</xwiki.extension.namespaces>
+    <xwiki.jacoco.instructionRatio>0.51</xwiki.jacoco.instructionRatio>
   </properties>
   <dependencies>
     <dependency>
