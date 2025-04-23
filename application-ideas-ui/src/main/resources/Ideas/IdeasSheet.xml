@@ -38,6 +38,7 @@
   <hidden>true</hidden>
   <content>{{velocity}}
 {{html wiki="true"}}
+#set($discard = $xwiki.jsx.use("Ideas.IdeasSheet"))
 #set($discard = $xwiki.ssx.use("Ideas.IdeasSheet"))
 #set($discard = $xwiki.ssx.use('AppWithinMinutes.ClassSheetGenerator'))
 #set($discard = $doc.use('Ideas.IdeasClass'))
@@ -67,15 +68,7 @@
     (((
       ; &lt;label for="Ideas.IdeasClass_0_status"&gt;#if($services.icon)$services.icon.render('control_play') #end$escapetool.xml($doc.displayPrettyName('status'))&lt;/label&gt;##
         (% class="xHint" %)$services.localization.render('')
-      #if($doc.isNew())
-        &lt;select id="Ideas.IdeasClass_0_status" name="Ideas.IdeasClass_0_status"&gt;
-          &lt;option value="open"&gt;$services.localization.render('Ideas.IdeasClass_status_open')&lt;/option&gt;
-          &lt;option value="closed" disabled&gt;$services.localization.render('Ideas.IdeasClass_status_closed')&lt;/option&gt;
-          &lt;option value="rejected" disabled&gt;$services.localization.render('Ideas.IdeasClass_status_rejected')&lt;/option&gt;
-        &lt;/select&gt;
-      #else
-        : $doc.display('status')
-      #end
+      : $doc.display('status')
     )))
     (% class="col-xs-12 col-md-6" %)
     (((
@@ -263,6 +256,113 @@
 #end
 {{/html}}
 {{/velocity}}</content>
+  <object>
+    <name>Ideas.IdeasSheet</name>
+    <number>0</number>
+    <className>XWiki.JavaScriptExtension</className>
+    <guid>103c46f0-4334-462b-a9df-b1484c9dfad7</guid>
+    <class>
+      <name>XWiki.JavaScriptExtension</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <cache>
+        <cache>0</cache>
+        <defaultValue>long</defaultValue>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>cache</name>
+        <number>5</number>
+        <prettyName>Caching policy</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>long|short|default|forbid</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </cache>
+      <code>
+        <contenttype>PureText</contenttype>
+        <disabled>0</disabled>
+        <editor>PureText</editor>
+        <name>code</name>
+        <number>2</number>
+        <prettyName>Code</prettyName>
+        <restricted>0</restricted>
+        <rows>20</rows>
+        <size>50</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.TextAreaClass</classType>
+      </code>
+      <name>
+        <disabled>0</disabled>
+        <name>name</name>
+        <number>1</number>
+        <prettyName>Name</prettyName>
+        <size>30</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.StringClass</classType>
+      </name>
+      <parse>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>yesno</displayType>
+        <name>parse</name>
+        <number>4</number>
+        <prettyName>Parse content</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </parse>
+      <use>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText>forbidden</freeText>
+        <largeStorage>0</largeStorage>
+        <multiSelect>0</multiSelect>
+        <name>use</name>
+        <number>3</number>
+        <prettyName>Use this extension</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <separators>|, </separators>
+        <size>1</size>
+        <unmodifiable>0</unmodifiable>
+        <values>currentPage|onDemand|always</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </use>
+    </class>
+    <property>
+      <cache>long</cache>
+    </property>
+    <property>
+      <code>require(['jquery'], function ($) {
+  if (XWiki.docisnew) {
+    let select = $('select#Ideas\\.IdeasClass_0_status');
+    select.children('[data-form-active="0"]').prop('disabled', true);
+    // Select first selectable option, since the one selected by default might have been disabled by the line above.
+    select.children('option:not([disabled]):first').prop('selected', true);
+  }
+});</code>
+    </property>
+    <property>
+      <name/>
+    </property>
+    <property>
+      <parse/>
+    </property>
+    <property>
+      <use/>
+    </property>
+  </object>
   <object>
     <name>Ideas.IdeasSheet</name>
     <number>0</number>

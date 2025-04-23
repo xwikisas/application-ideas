@@ -86,6 +86,9 @@ ideas.livetable.nbestimate=Estimated cost
 ideas.livetable.status=Status
 ideas.livetable.assignement=Assignee
 ideas.livetable.priority=Priority
+ideas.livetable.status=Status
+ideas.livetable.formActive=Form Active
+ideas.livetable.order=Order
 
 # Ideas application keys
 ideas.home.description=Ideas worth spreading
@@ -115,7 +118,16 @@ rendering.macro.ideasrecent.parameter.limit.description=Number of maximum entrie
 
 # Template Provider
 templateProvider.idea.name=Idea
-templateProvider.idea.description=Share an idea</content>
+templateProvider.idea.description=Share an idea
+
+# Administration Section
+Ideas.administration.addStatus=Add Status
+Ideas.administration.addStatus.status.label=Status
+Ideas.administration.addStatus.status.placeholder=name
+Ideas.administration.addStatus.formActive.label=Form Active?
+Ideas.administration.addStatus.order.label=Order
+Ideas.administration.addStatus.order.placeholder=order
+Ideas.administration.addStatus.submit=Add Status</content>
   <object>
     <name>Ideas.IdeasTranslations</name>
     <number>0</number>

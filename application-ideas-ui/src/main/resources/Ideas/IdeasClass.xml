@@ -49,8 +49,12 @@
     <against>
       <cache>0</cache>
       <customDisplay/>
+      <defaultValue/>
       <disabled>0</disabled>
       <displayType>input</displayType>
+      <freeText/>
+      <hint/>
+      <largeStorage>0</largeStorage>
       <multiSelect>1</multiSelect>
       <name>against</name>
       <number>6</number>
@@ -70,8 +74,12 @@
     <assignement>
       <cache>0</cache>
       <customDisplay/>
+      <defaultValue/>
       <disabled>0</disabled>
       <displayType>input</displayType>
+      <freeText/>
+      <hint/>
+      <largeStorage>0</largeStorage>
       <multiSelect>0</multiSelect>
       <name>assignement</name>
       <number>7</number>
@@ -91,6 +99,7 @@
     <content1>
       <customDisplay>{{include reference="AppWithinMinutes.Content"/}}</customDisplay>
       <disabled>0</disabled>
+      <hint/>
       <name>content1</name>
       <number>2</number>
       <prettyName>Description</prettyName>
@@ -136,6 +145,7 @@
   #end
 {{/velocity}}</customDisplay>
       <disabled>0</disabled>
+      <hint/>
       <name>nbagainst</name>
       <number>4</number>
       <numberType>integer</numberType>
@@ -157,6 +167,7 @@
 {{/html}}
 {{/velocity}}</customDisplay>
       <disabled>0</disabled>
+      <hint/>
       <name>nbestimate</name>
       <number>8</number>
       <numberType>long</numberType>
@@ -203,6 +214,7 @@
   #end
 {{/velocity}}</customDisplay>
       <disabled>0</disabled>
+      <hint/>
       <name>nbvotes</name>
       <number>3</number>
       <numberType>integer</numberType>
@@ -216,8 +228,12 @@
     <priority>
       <cache>0</cache>
       <customDisplay/>
+      <defaultValue/>
       <disabled>0</disabled>
       <displayType>select</displayType>
+      <freeText/>
+      <hint/>
+      <largeStorage>0</largeStorage>
       <multiSelect>0</multiSelect>
       <name>priority</name>
       <number>10</number>
@@ -236,9 +252,44 @@
     </priority>
     <status>
       <cache>0</cache>
-      <customDisplay/>
+      <classname>Ideas.Code.StatusClass</classname>
+      <customDisplay>{{velocity}}
+#if($type=='edit')
+{{html}}
+#set($name = 'status')
+#set($propertyClass = $object.getxWikiClass().get($name))
+#set($existingValue = $object.getValue('status'))
+&lt;select size="1" name="Ideas.IdeasClass_0_status" id="Ideas.IdeasClass_0_status"&gt;
+#foreach($rValue in $propertyClass.mapValues.entrySet())
+  #set($key = "Ideas.IdeasClass_status_$rValue.key")
+  #set($translation = $services.localization.render($key))
+  ## The parent property is used here to store the formActive property.
+  &lt;option value="$escapetool.xml($rValue.key)" data-form-active="$escapetool.xml($rValue.getValue().getParent())" #if($existingValue == $rValue.key) selected='selected' #end&gt;
+    #if ($translation == $key)
+      $escapetool.xml($rValue.key)
+    #else
+      $escapetool.xml($translation)
+    #end
+  &lt;/option&gt;
+#end
+{{/html}}
+#else
+  #set($key = "Ideas.IdeasClass_status_${object.getValue('status')}")
+  #set($translation = $services.localization.render($key))
+  #if ($translation == $key)
+    $services.rendering.escape($object.getValue('status'), 'xwiki/2.1')
+  #else
+    $services.rendering.escape($translation, 'xwiki/2.1')
+  #end
+#end
+{{/velocity}}</customDisplay>
+      <defaultValue/>
       <disabled>0</disabled>
       <displayType>select</displayType>
+      <freeText/>
+      <hint/>
+      <idField>status</idField>
+      <largeStorage>0</largeStorage>
       <multiSelect>0</multiSelect>
       <name>status</name>
       <number>9</number>
@@ -246,20 +297,25 @@
       <prettyName>Status</prettyName>
       <relationalStorage>0</relationalStorage>
       <separator> </separator>
-      <separators> ,|</separators>
+      <separators/>
       <size>1</size>
       <sort>none</sort>
+      <sql>select prop1.value, prop1.value, prop3.value from BaseObject as obj, StringProperty as prop1, IntegerProperty as prop2, IntegerProperty as prop3 where obj.className='Ideas.Code.StatusClass' and obj.id=prop1.id.id and prop1.id.name='status' and obj.id=prop2.id.id and prop2.id.name='order' and obj.id=prop3.id.id and prop3.id.name='formActive' order by prop2.value</sql>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
-      <values>open=Open|closed=Closed|rejected=Rejected</values>
-      <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      <valueField/>
+      <classType>com.xpn.xwiki.objects.classes.DBListClass</classType>
     </status>
     <supporters>
       <cache>0</cache>
       <customDisplay/>
+      <defaultValue/>
       <disabled>0</disabled>
       <displayType>select</displayType>
+      <freeText/>
+      <hint/>
+      <largeStorage>0</largeStorage>
       <multiSelect>1</multiSelect>
       <name>supporters</name>
       <number>5</number>
@@ -279,6 +335,7 @@
     <title1>
       <customDisplay>{{include reference="AppWithinMinutes.Title"/}}</customDisplay>
       <disabled>0</disabled>
+      <hint/>
       <name>title1</name>
       <number>1</number>
       <prettyName>Idea</prettyName>
