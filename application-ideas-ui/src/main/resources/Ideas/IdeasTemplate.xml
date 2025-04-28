@@ -265,13 +265,13 @@
 #set($propertyClass = $object.getxWikiClass().get($name))
 #set($existingValue = $object.getValue('status'))
 &lt;select size="1" name="Ideas.IdeasClass_0_status" id="Ideas.IdeasClass_0_status"&gt;
-#foreach($rValue in $propertyClass.mapValues.entrySet())
-  #set($key = "Ideas.IdeasClass_status_$rValue.key")
+#foreach($rValue in $services.ideas.getSortedStatuses())
+  #set($key = "Ideas.IdeasClass_status_$rValue.get(0)")
   #set($translation = $services.localization.render($key))
-  ## The parent property is used here to store the formActive property.
-  &lt;option value="$escapetool.xml($rValue.key)" data-form-active="$escapetool.xml($rValue.getValue().getParent())" #if($existingValue == $rValue.key) selected='selected' #end&gt;
+  &lt;option value="$escapetool.xml($rValue.get(0))" data-form-active="$escapetool.xml($rValue.get(1))"
+        #if($existingValue == $rValue.get(0)) selected='selected' #end&gt;
     #if ($translation == $key)
-      $escapetool.xml($rValue.key)
+      $escapetool.xml($rValue.get(0))
     #else
       $escapetool.xml($translation)
     #end
@@ -297,7 +297,7 @@
         <largeStorage>0</largeStorage>
         <multiSelect>0</multiSelect>
         <name>status</name>
-        <number>10</number>
+        <number>9</number>
         <picker>0</picker>
         <prettyName>Status</prettyName>
         <relationalStorage>0</relationalStorage>
@@ -305,7 +305,7 @@
         <separators/>
         <size>1</size>
         <sort>none</sort>
-        <sql>select prop1.value, prop1.value, prop3.value from BaseObject as obj, StringProperty as prop1, IntegerProperty as prop2, IntegerProperty as prop3 where obj.className='Ideas.Code.StatusClass' and obj.id=prop1.id.id and prop1.id.name='status' and obj.id=prop2.id.id and prop2.id.name='order' and obj.id=prop3.id.id and prop3.id.name='formActive' order by prop2.value</sql>
+        <sql/>
         <unmodifiable>0</unmodifiable>
         <validationMessage/>
         <validationRegExp/>
