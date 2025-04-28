@@ -265,6 +265,7 @@
   (((
   #foreach($idea in $results)
     #set($document = $xwiki.getDocument($idea))
+    #set ($object = $document.getObject('Ideas.IdeasClass'))
     #if($document.hasAccessLevel('view', $xcontext.user) == 'true')
       &lt;div class="ideas secondary"&gt;
         #if($xcontext.action == 'view')
@@ -272,8 +273,8 @@
           $document.display('nbagainst')
         #end
         [[$document.title&gt;&gt;$idea]] $services.localization.render('ideas.author', ["[[$xwiki.getUserName($document.author, false)&gt;&gt;$document.author]]"]) $services.localization.render('ideas.date', [$xwiki.formatDate($document.date, 'dd/MM/yyyy hh:mm')])
-        &lt;span class="hidden status" data-status="$document.status"&gt;&lt;/span&gt;
-        &lt;span class="hidden fullName" data-reference="$document.documentReference"&gt;&lt;/span&gt;
+        &lt;span class="hidden status" data-status="$!escapetool.xml($object.getValue('status'))" data-form-active="$!escapetool.xml($services.ideas.isFormActive($object.getValue('status')))"&gt;&lt;/span&gt;
+        &lt;span class="hidden fullName" data-reference="$!escapetool.xml($document.documentReference)"&gt;&lt;/span&gt;
       &lt;/div&gt;
     #end
   #end

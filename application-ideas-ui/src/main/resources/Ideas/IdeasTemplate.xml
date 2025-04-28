@@ -131,7 +131,7 @@
     #if ($users.contains($xcontext.getLocalUser()))
       #set ($addclass = "voted-con")
     #end
-    #if ($status == 'open')
+    #if ($services.ideas.isFormOpen($status))
       (% class="xvote-con against${hash} #if($addclass) $addclass #end" data-ref="$ref" data-opp="nbvotes${hash}"%)
     #else
       (% class="no-hover-con xvote-con against${hash} #if($addclass) $addclass #end"%)
@@ -200,7 +200,7 @@
     #if ($users.contains($xcontext.getLocalUser()))
       #set ($addclass = "voted-pro")
     #end
-    #if($status == 'open')
+    #if($services.ideas.isFormOpen($status))
       (% class="xvote-pro nbvotes${hash} #if ($addclass) $addclass #end" data-ref="$ref" data-opp="against${hash}"%)
     #else
       (% class="no-hover-pro xvote-pro nbvotes${hash} #if ($addclass) $addclass #end"%)

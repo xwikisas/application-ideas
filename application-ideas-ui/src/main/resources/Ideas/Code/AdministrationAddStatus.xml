@@ -41,13 +41,17 @@
   #set($status = $request.status)
   #set($order = $request.order)
   #set($formActive = $request.formActive)
-  #if($stringtool.isNotBlank($name) &amp;&amp; $stringtool.isNotBlank($formActive) &amp;&amp; $stringtool.isNotBlank($order) &amp;&amp; $services.csrf.isTokenValid($request.form_token))
+  #if($stringtool.isNotBlank($name) &amp;&amp; $stringtool.isNotBlank($order) &amp;&amp; $services.csrf.isTokenValid($request.form_token))
     #set($document = $xwiki.getDocument("Ideas.Code.Statuses.Status_$status"))
     #set($discard = $document.setTitle($status))
     #set($discard = $document.setHidden(true))
     #set($object = $document.getObject('Ideas.Code.StatusClass', true))
     #set($discard = $object.set('status', $status))
-    #set($discard = $object.set('formActive', $formActive))
+    #if ("$!formActive" != '')
+      #set($discard = $object.set('formActive', 1))
+    #else
+      #set($discard = $object.set('formActive', 0))
+    #end
     #set($discard = $object.set('order', $order))
     #set($discard = $document.save())
   #end
