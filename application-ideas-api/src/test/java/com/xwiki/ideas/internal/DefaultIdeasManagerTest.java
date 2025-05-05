@@ -20,6 +20,7 @@
 package com.xwiki.ideas.internal;
 
 import java.util.Arrays;
+import java.util.List;
 
 import javax.inject.Named;
 import javax.inject.Provider;
@@ -29,6 +30,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.EntityReferenceSerializer;
+import org.xwiki.query.Query;
+import org.xwiki.query.QueryException;
+import org.xwiki.query.QueryManager;
 import org.xwiki.test.junit5.mockito.ComponentTest;
 import org.xwiki.test.junit5.mockito.InjectMockComponents;
 import org.xwiki.test.junit5.mockito.MockComponent;
@@ -42,6 +46,8 @@ import com.xwiki.ideas.IdeasException;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -64,13 +70,18 @@ class DefaultIdeasManagerTest
     @MockComponent
     @Named("compactwiki")
     private EntityReferenceSerializer<String> serializer;
+
     @Mock
     private XWikiContext xWikiContext;
+
     @Mock
     private XWiki xWiki;
+
     @Mock
     private XWikiDocument document;
 
+    @MockComponent
+    private QueryManager queryManager;
 
     @BeforeEach
     void setup()
@@ -78,6 +89,7 @@ class DefaultIdeasManagerTest
         when(this.contextProvider.get()).thenReturn(this.xWikiContext);
         when(this.xWikiContext.getWiki()).thenReturn(xWiki);
     }
+
     @Test
     void voteDocumentWithNoIdeaObjectTest() throws XWikiException
     {
@@ -110,4 +122,21 @@ class DefaultIdeasManagerTest
         verify(this.xWiki).saveDocument(this.document, "Updated Votes", this.xWikiContext);
     }
 
+    @Test
+    void isStatusOpenTest() throws XWikiException, QueryException, IdeasException
+    {
+        DocumentReference input = new DocumentReference("XWiki", Arrays.asList("Space1", "Space2"), "Page");
+        BaseObject ideaObj = mock(BaseObject.class);
+        when(this.xWiki.getDocument(input, this.xWikiContext)).thenReturn(this.document);
+        when(this.document.getXObject(DefaultIdeasManager.IDEA_CLASS_REFERENCE)).thenReturn(ideaObj);
+        when(ideaObj.getStringValue("status")).thenReturn("open");
+
+        Query query = mock(Query.class);
+        when(query.setLimit(anyInt())).thenReturn(query);
+        when(query.bindValue(any(), any())).thenReturn(query);
+        when(query.execute()).thenReturn(List.of(1));
+        when(queryManager.createQuery(any(), any())).thenReturn(query);
+
+        assertTrue(manager.isStatusOpen(input));
+    }
 }

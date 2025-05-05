@@ -198,7 +198,7 @@ public class DefaultIdeasManager implements IdeasManager
                 return false;
             }
         } catch (QueryException e) {
-            logger.error("Failed to retrieve the form active property for ideas status [{}]", status, e);
+            logger.error("Failed to retrieve the statusOpen property for ideas status [{}]", status, e);
             throw new RuntimeException(e);
         }
     }

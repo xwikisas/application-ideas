@@ -60,7 +60,7 @@ public class DefaultIdeasResource extends ModifiablePageResource implements Idea
     {
         DocumentReference documentReference = new DocumentReference(pageName, getSpaceReference(spaceName, xwikiName));
         if (!authorizationManager.hasAccess(Right.VIEW, documentReference)) {
-            throw new WebApplicationException(Response.Status.FORBIDDEN);
+            throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         }
         try {
             return IdeaMapper.from(manager.get(documentReference));
