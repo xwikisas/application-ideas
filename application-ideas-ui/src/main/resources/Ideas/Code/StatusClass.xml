@@ -46,21 +46,21 @@
     <defaultWeb/>
     <nameField/>
     <validationScript/>
-    <formActive>
+    <statusOpen>
       <customDisplay/>
       <defaultValue/>
       <disabled>0</disabled>
       <displayFormType>checkbox</displayFormType>
       <displayType/>
       <hint/>
-      <name>formActive</name>
+      <name>statusOpen</name>
       <number>2</number>
-      <prettyName>formActive</prettyName>
+      <prettyName>statusOpen</prettyName>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
       <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
-    </formActive>
+    </statusOpen>
     <order>
       <customDisplay/>
       <disabled>0</disabled>

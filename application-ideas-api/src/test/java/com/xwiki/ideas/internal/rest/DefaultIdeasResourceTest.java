@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.xwiki.component.manager.ComponentManager;
 import org.xwiki.context.Execution;
 import org.xwiki.context.ExecutionContext;
+import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.rest.XWikiRestException;
 import org.xwiki.security.authorization.ContextualAuthorizationManager;
 import org.xwiki.test.annotation.BeforeComponent;
@@ -42,6 +43,7 @@ import com.xwiki.ideas.model.Idea;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -54,6 +56,9 @@ import static org.mockito.Mockito.when;
 @ComponentTest
 public class DefaultIdeasResourceTest
 {
+    @MockComponent
+    protected Provider<XWikiContext> xcontextProvider;
+
     @InjectMockComponents
     private DefaultIdeasResource ideasResource;
 
@@ -65,9 +70,6 @@ public class DefaultIdeasResourceTest
 
     @InjectComponentManager
     private MockitoComponentManager componentManager;
-
-    @MockComponent
-    protected Provider<XWikiContext> xcontextProvider;
 
     private XWikiContext xWikiContext;
 
@@ -93,6 +95,8 @@ public class DefaultIdeasResourceTest
         voteResult.getSupporters().add("");
         when(authorizationManager.hasAccess(any(), any())).thenReturn(true);
         when(manager.exists(any())).thenReturn(true);
+        when(manager.isStatusOpen(anyString())).thenReturn(true);
+        when(manager.isStatusOpen(any(DocumentReference.class))).thenReturn(true);
         when(manager.vote(any(), anyBoolean())).thenReturn(voteResult);
         com.xwiki.ideas.model.jaxb.Idea response = this.ideasResource.vote("wiki", "space", "page", "true");
 

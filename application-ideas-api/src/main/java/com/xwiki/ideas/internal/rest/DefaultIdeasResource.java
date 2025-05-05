@@ -55,7 +55,8 @@ public class DefaultIdeasResource extends ModifiablePageResource implements Idea
     @Inject
     private ContextualAuthorizationManager authorizationManager;
 
-    @Override public Idea get(String xwikiName, String spaceName, String pageName) throws XWikiRestException
+    @Override
+    public Idea get(String xwikiName, String spaceName, String pageName) throws XWikiRestException
     {
         DocumentReference documentReference = new DocumentReference(pageName, getSpaceReference(spaceName, xwikiName));
         if (!authorizationManager.hasAccess(Right.VIEW, documentReference)) {
@@ -74,11 +75,15 @@ public class DefaultIdeasResource extends ModifiablePageResource implements Idea
     {
         DocumentReference documentReference = new DocumentReference(pageName, getSpaceReference(spaceName, xwikiName));
         if (!authorizationManager.hasAccess(Right.EDIT, documentReference)) {
-            throw new WebApplicationException(Response.Status.FORBIDDEN);
+            throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         }
         try {
             if (manager.exists(documentReference)) {
-                return IdeaMapper.from(manager.vote(documentReference, Boolean.valueOf(value)));
+                if (manager.isStatusOpen(documentReference)) {
+                    return IdeaMapper.from(manager.vote(documentReference, Boolean.valueOf(value)));
+                } else {
+                    throw new WebApplicationException(Response.Status.FORBIDDEN);
+                }
             }
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         } catch (IdeasException e) {
@@ -92,11 +97,15 @@ public class DefaultIdeasResource extends ModifiablePageResource implements Idea
     {
         DocumentReference documentReference = new DocumentReference(pageName, getSpaceReference(spaceName, xwikiName));
         if (!authorizationManager.hasAccess(Right.EDIT, documentReference)) {
-            throw new WebApplicationException(Response.Status.FORBIDDEN);
+            throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         }
         try {
             if (manager.exists(documentReference)) {
-                return IdeaMapper.from(manager.removeVote(documentReference));
+                if (manager.isStatusOpen(documentReference)) {
+                    return IdeaMapper.from(manager.removeVote(documentReference));
+                } else {
+                    throw new WebApplicationException(Response.Status.FORBIDDEN);
+                }
             }
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         } catch (IdeasException e) {

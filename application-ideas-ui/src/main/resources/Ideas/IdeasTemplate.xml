@@ -131,7 +131,7 @@
     #if ($users.contains($xcontext.getLocalUser()))
       #set ($addclass = "voted-con")
     #end
-    #if ($services.ideas.isFormOpen($status))
+    #if ($services.ideas.isStatusOpen($status))
       (% class="xvote-con against${hash} #if($addclass) $addclass #end" data-ref="$ref" data-opp="nbvotes${hash}"%)
     #else
       (% class="no-hover-con xvote-con against${hash} #if($addclass) $addclass #end"%)
@@ -200,7 +200,7 @@
     #if ($users.contains($xcontext.getLocalUser()))
       #set ($addclass = "voted-pro")
     #end
-    #if($services.ideas.isFormOpen($status))
+    #if($services.ideas.isStatusOpen($status))
       (% class="xvote-pro nbvotes${hash} #if ($addclass) $addclass #end" data-ref="$ref" data-opp="against${hash}"%)
     #else
       (% class="no-hover-pro xvote-pro nbvotes${hash} #if ($addclass) $addclass #end"%)
@@ -268,7 +268,7 @@
 #foreach($rValue in $services.ideas.getSortedStatuses())
   #set($key = "Ideas.IdeasClass_status_$rValue.get(0)")
   #set($translation = $services.localization.render($key))
-  &lt;option value="$escapetool.xml($rValue.get(0))" data-form-active="$escapetool.xml($rValue.get(1))"
+  &lt;option value="$escapetool.xml($rValue.get(0))" data-status-open="$escapetool.xml($rValue.get(1))"
         #if($existingValue == $rValue.get(0)) selected='selected' #end&gt;
     #if ($translation == $key)
       $escapetool.xml($rValue.get(0))

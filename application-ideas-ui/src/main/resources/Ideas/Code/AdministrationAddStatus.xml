@@ -40,44 +40,64 @@
 #if($hasAdmin)
   #set($status = $request.status)
   #set($order = $request.order)
-  #set($formActive = $request.formActive)
+  #set($statusOpen = $request.statusOpen)
   #if($stringtool.isNotBlank($name) &amp;&amp; $stringtool.isNotBlank($order) &amp;&amp; $services.csrf.isTokenValid($request.form_token))
     #set($document = $xwiki.getDocument("Ideas.Code.Statuses.Status_$status"))
     #set($discard = $document.setTitle($status))
     #set($discard = $document.setHidden(true))
     #set($object = $document.getObject('Ideas.Code.StatusClass', true))
     #set($discard = $object.set('status', $status))
-    #if ("$!formActive" != '')
-      #set($discard = $object.set('formActive', 1))
+    #if ("$!statusOpen" != '')
+      #set($discard = $object.set('statusOpen', 1))
     #else
-      #set($discard = $object.set('formActive', 0))
+      #set($discard = $object.set('statusOpen', 0))
     #end
     #set($discard = $object.set('order', $order))
     #set($discard = $document.save())
   #end
 
   {{html}}
-    &lt;form class="xformInline" method="post"&gt;
+    &lt;form class="xform" method="post"&gt;
       &lt;input type="hidden" name="form_token" value="$!{services.csrf.getToken()}" /&gt;
-      &lt;label for="status"&gt;$escapetool.xml($services.localization.render('Ideas.administration.addStatus.status.label'))&lt;/label&gt;
-      &lt;input id="status" name="status" type="text" size="20" required
-        placeholder="$escapetool.xml($services.localization.render('Ideas.administration.addStatus.status.placeholder'))"/&gt;
-      &lt;label for="formActive"&gt;$escapetool.xml($services.localization.render('Ideas.administration.addStatus.formActive.label'))&lt;/label&gt;
-      &lt;input id="formActive" name="formActive" type="checkbox" size="5" required
-        placeholder="$escapetool.xml($services.localization.render('Ideas.administration.addStatus.formActive.placeholder'))"/&gt;
-      &lt;label for="order"&gt;$escapetool.xml($services.localization.render('Ideas.administration.addStatus.order.label'))&lt;/label&gt;
-      &lt;input id="order" name="order" type="number" size="5" required
-        placeholder="$escapetool.xml($services.localization.render('Ideas.administration.addStatus.order.placeholder'))"/&gt;
+      &lt;dl&gt;
+        &lt;dt&gt;
+          &lt;label for="status"&gt;$escapetool.xml($services.localization.render('Ideas.administration.addStatus.status.label'))&lt;/label&gt;
+          &lt;span class="xHint"&gt;$escapetool.xml($services.localization.render('Ideas.administration.addStatus.status.hint'))&lt;/span&gt;
+        &lt;/dt&gt;
+        &lt;dd&gt;
+          &lt;input id="status" name="status" type="text" size="20" required
+            placeholder="$escapetool.xml($services.localization.render('Ideas.administration.addStatus.status.placeholder'))"/&gt;
+        &lt;/dd&gt;
+      &lt;/dl&gt;
+      &lt;dl&gt;
+        &lt;dt&gt;
+          &lt;label for="statusOpen"&gt;$escapetool.xml($services.localization.render('Ideas.administration.addStatus.statusOpen.label'))&lt;/label&gt;
+          &lt;span class="xHint"&gt;$escapetool.xml($services.localization.render('Ideas.administration.addStatus.statusOpen.hint'))&lt;/span&gt;
+        &lt;/dt&gt;
+        &lt;dd&gt;
+          &lt;input id="statusOpen" name="statusOpen" type="checkbox" size="5"/&gt;
+        &lt;/dd&gt;
+      &lt;/dl&gt;
+      &lt;dl&gt;
+        &lt;dt&gt;
+          &lt;label for="order"&gt;$escapetool.xml($services.localization.render('Ideas.administration.addStatus.order.label'))&lt;/label&gt;
+          &lt;span class="xHint"&gt;$escapetool.xml($services.localization.render('Ideas.administration.addStatus.order.hint'))&lt;/span&gt;
+        &lt;/dt&gt;
+        &lt;dd&gt;
+          &lt;input id="order" name="order" type="number" size="5" required
+            placeholder="$escapetool.xml($services.localization.render('Ideas.administration.addStatus.order.placeholder'))"/&gt;
+        &lt;/dd&gt;
+      &lt;/dl&gt;
       &lt;span class="buttonwrapper"&gt;
         &lt;button class="button" type="submit"&gt;$escapetool.xml($services.localization.render('Ideas.administration.addStatus.submit'))&lt;/button&gt;
       &lt;/span&gt;
     &lt;/form&gt;
   {{/html}}
-  #set($columns = ['status', 'order', 'formActive', 'doc.date', 'doc.author', '_actions'])
+  #set($columns = ['status', 'order', 'statusOpen', 'doc.date', 'doc.author', '_actions'])
   #set($columnsProperties = {
     'status'  : { 'type' : 'text', 'link' : 'view' },
     'order'     : { 'type' : 'number', 'size' : 1 },
-    'formActive' : { 'type' : 'number', 'size' : 1 },
+    'statusOpen' : { 'type' : 'number', 'size' : 1 },
     'doc.date'  : { 'type' : 'date', 'filterable' : false },
     'doc.author': { 'type' : 'text', 'link' : 'author', 'filterable' : false },
     '_actions'  : { 'actions' : ['delete'] }
@@ -90,7 +110,7 @@
     'selectedColumn' : 'order',
     'queryFilters': 'currentlanguage'
   })
-#livetable("statusTable" $columns $columnsProperties $options)
+#livetable('statusTable' $columns $columnsProperties $options)
 #else
   {{info}}{{translation key="Ideas.administration.noRights"/}}{{/info}}
 #end

@@ -25,12 +25,11 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
-import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
-import org.xwiki.query.Query;
-import org.xwiki.query.QueryException;
-import org.xwiki.query.QueryManager;
 import org.xwiki.script.service.ScriptService;
+
+import com.xwiki.ideas.IdeasException;
+import com.xwiki.ideas.IdeasManager;
 
 /**
  * Script service for retrieving information about the Ideas Application.
@@ -44,35 +43,17 @@ import org.xwiki.script.service.ScriptService;
 public class IdeasScriptService implements ScriptService
 {
     @Inject
-    private QueryManager queryManager;
-
-    @Inject
-    private Logger logger;
+    private IdeasManager ideasManager;
 
     /**
      * Check if an idea with the given status allows voting.
+     *
      * @param status the status to check
      * @return true if an idea with the given status is open for voting, false otherwise
      */
-    public boolean isFormActive(String status)
+    public boolean isStatusOpen(String status) throws IdeasException
     {
-        try {
-            Query query = queryManager.createQuery(
-                "select prop3.value from BaseObject as obj,"
-                    + " StringProperty as prop1, IntegerProperty as prop3"
-                    + " where obj.className='Ideas.Code.StatusClass' and"
-                    + " obj.id=prop1.id.id and prop1.id.name='status' and prop1.id.value=:status"
-                    + " and obj.id=prop3.id.id and prop3.id.name='formActive'", Query.HQL);
-            List<Object> results = query.setLimit(1).bindValue("status", status).execute();
-            if (!results.isEmpty()) {
-                return results.get(0).equals(1);
-            } else {
-                return false;
-            }
-        } catch (QueryException e) {
-            logger.error("Failed to retrieve the form active property for ideas status [{}]", status, e);
-            throw new RuntimeException(e);
-        }
+        return ideasManager.isStatusOpen(status);
     }
 
     /**
@@ -80,16 +61,6 @@ public class IdeasScriptService implements ScriptService
      */
     public List<Object[]> getSortedStatuses()
     {
-        try {
-            Query query = queryManager.createQuery("select prop1.value, prop3.value from BaseObject as obj,"
-                + " StringProperty as prop1, IntegerProperty as prop2, IntegerProperty as prop3"
-                + " where obj.className='Ideas.Code.StatusClass' and obj.id=prop1.id.id and prop1.id.name='status'"
-                + " and obj.id=prop2.id.id and prop2.id.name='order'"
-                + " and obj.id=prop3.id.id and prop3.id.name='formActive' order by prop2.value", Query.HQL);
-            return query.execute();
-        } catch (QueryException e) {
-            logger.error("Failed to retrieve the sorted idea statuses.", e);
-            throw new RuntimeException(e);
-        }
+        return ideasManager.getSortedStatuses();
     }
 }

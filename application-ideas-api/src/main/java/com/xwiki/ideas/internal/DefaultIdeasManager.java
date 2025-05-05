@@ -33,10 +33,14 @@ import javax.inject.Provider;
 import javax.inject.Singleton;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.EntityReferenceSerializer;
 import org.xwiki.model.reference.LocalDocumentReference;
+import org.xwiki.query.Query;
+import org.xwiki.query.QueryException;
+import org.xwiki.query.QueryManager;
 
 import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.XWikiContext;
@@ -55,6 +59,8 @@ import com.xwiki.ideas.model.Idea;
 @Singleton
 public class DefaultIdeasManager implements IdeasManager
 {
+    static final String STATUS_KEY = "status";
+
     static final LocalDocumentReference IDEA_CLASS_REFERENCE = new LocalDocumentReference("Ideas", "IdeasClass");
 
     static final String VOTERS_AGAINST_KEY = "against";
@@ -85,6 +91,12 @@ public class DefaultIdeasManager implements IdeasManager
     @Inject
     @Named("compactwiki")
     private EntityReferenceSerializer<String> serializer;
+
+    @Inject
+    private QueryManager queryManager;
+
+    @Inject
+    private Logger logger;
 
     @Override
     public Idea vote(DocumentReference documentReference, boolean pro)
@@ -147,6 +159,63 @@ public class DefaultIdeasManager implements IdeasManager
             return ideasObject != null;
         } catch (XWikiException e) {
             throw new IdeasException(String.format(FAILED_LOAD_EXCEPTION, documentReference), e);
+        }
+    }
+
+    @Override
+    public boolean isStatusOpen(DocumentReference ideaReference) throws IdeasException
+    {
+        try {
+            if (exists(ideaReference)) {
+                XWikiContext xcontext = contextProvider.get();
+                XWiki xWiki = xcontext.getWiki();
+                XWikiDocument ideasDoc = xWiki.getDocument(ideaReference, xcontext);
+                BaseObject ideasObj = ideasDoc.getXObject(IDEA_CLASS_REFERENCE);
+
+                String statusName = ideasObj.getStringValue(STATUS_KEY);
+                return isStatusOpen(statusName);
+            }
+            return false;
+        } catch (XWikiException e) {
+            throw new IdeasException("Could not resolve idea document reference", e);
+        }
+    }
+
+    @Override
+    public boolean isStatusOpen(String status)
+    {
+        try {
+            Query query = queryManager.createQuery(
+                "select prop3.value from BaseObject as obj,"
+                    + " StringProperty as prop1, IntegerProperty as prop3"
+                    + " where obj.className='Ideas.Code.StatusClass' and"
+                    + " obj.id=prop1.id.id and prop1.id.name='status' and prop1.id.value=:status"
+                    + " and obj.id=prop3.id.id and prop3.id.name='statusOpen'", Query.HQL);
+            List<Object> results = query.setLimit(1).bindValue(STATUS_KEY, status).execute();
+            if (!results.isEmpty()) {
+                return results.get(0).equals(1);
+            } else {
+                return false;
+            }
+        } catch (QueryException e) {
+            logger.error("Failed to retrieve the form active property for ideas status [{}]", status, e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public List<Object[]> getSortedStatuses()
+    {
+        try {
+            Query query = queryManager.createQuery("select prop1.value, prop3.value from BaseObject as obj,"
+                + " StringProperty as prop1, IntegerProperty as prop2, IntegerProperty as prop3"
+                + " where obj.className='Ideas.Code.StatusClass' and obj.id=prop1.id.id and prop1.id.name='status'"
+                + " and obj.id=prop2.id.id and prop2.id.name='order'"
+                + " and obj.id=prop3.id.id and prop3.id.name='statusOpen' order by prop2.value", Query.HQL);
+            return query.execute();
+        } catch (QueryException e) {
+            logger.error("Failed to retrieve the sorted idea statuses.", e);
+            throw new RuntimeException(e);
         }
     }
 
