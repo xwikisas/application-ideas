@@ -131,7 +131,7 @@
     #if ($users.contains($xcontext.getLocalUser()))
       #set ($addclass = "voted-con")
     #end
-    #if ($services.ideas.isStatusOpen($status))
+    #if ($services.ideas.isOpenToVote($status))
       (% class="xvote-con against${hash} #if($addclass) $addclass #end" data-ref="$ref" data-opp="nbvotes${hash}"%)
     #else
       (% class="no-hover-con xvote-con against${hash} #if($addclass) $addclass #end"%)
@@ -200,7 +200,7 @@
     #if ($users.contains($xcontext.getLocalUser()))
       #set ($addclass = "voted-pro")
     #end
-    #if($services.ideas.isStatusOpen($status))
+    #if($services.ideas.isOpenToVote($status))
       (% class="xvote-pro nbvotes${hash} #if ($addclass) $addclass #end" data-ref="$ref" data-opp="against${hash}"%)
     #else
       (% class="no-hover-pro xvote-pro nbvotes${hash} #if ($addclass) $addclass #end"%)
@@ -259,17 +259,17 @@
         <cache>0</cache>
         <classname>Ideas.Code.StatusClass</classname>
         <customDisplay>{{velocity}}
-#if($type=='edit')
+#if ($type=='edit')
 {{html}}
-#set($name = 'status')
-#set($propertyClass = $object.getxWikiClass().get($name))
-#set($existingValue = $object.getValue('status'))
+#set ($name = 'status')
+#set ($propertyClass = $object.getxWikiClass().get($name))
+#set ($existingValue = $object.getValue('status'))
 &lt;select size="1" name="Ideas.IdeasClass_0_status" id="Ideas.IdeasClass_0_status"&gt;
 #foreach($rValue in $services.ideas.getSortedStatuses())
-  #set($key = "Ideas.IdeasClass_status_$rValue.get(0)")
-  #set($translation = $services.localization.render($key))
+  #set ($key = "Ideas.IdeasClass_status_$rValue.get(0)")
+  #set ($translation = $services.localization.render($key))
   &lt;option value="$escapetool.xml($rValue.get(0))" data-status-open="$escapetool.xml($rValue.get(1))"
-        #if($existingValue == $rValue.get(0)) selected='selected' #end&gt;
+        #if ($existingValue == $rValue.get(0)) selected='selected' #end&gt;
     #if ($translation == $key)
       $escapetool.xml($rValue.get(0))
     #else
@@ -277,6 +277,7 @@
     #end
   &lt;/option&gt;
 #end
+&lt;/select&gt;
 {{/html}}
 #else
   #set($key = "Ideas.IdeasClass_status_${object.getValue('status')}")

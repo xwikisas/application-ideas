@@ -20,7 +20,6 @@
 package com.xwiki.ideas.internal;
 
 import java.util.Arrays;
-import java.util.List;
 
 import javax.inject.Named;
 import javax.inject.Provider;
@@ -29,10 +28,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.model.reference.EntityReference;
 import org.xwiki.model.reference.EntityReferenceSerializer;
-import org.xwiki.query.Query;
-import org.xwiki.query.QueryException;
-import org.xwiki.query.QueryManager;
 import org.xwiki.test.junit5.mockito.ComponentTest;
 import org.xwiki.test.junit5.mockito.InjectMockComponents;
 import org.xwiki.test.junit5.mockito.MockComponent;
@@ -47,7 +44,6 @@ import com.xwiki.ideas.IdeasException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -79,9 +75,6 @@ class DefaultIdeasManagerTest
 
     @Mock
     private XWikiDocument document;
-
-    @MockComponent
-    private QueryManager queryManager;
 
     @BeforeEach
     void setup()
@@ -123,20 +116,13 @@ class DefaultIdeasManagerTest
     }
 
     @Test
-    void isStatusOpenTest() throws XWikiException, QueryException, IdeasException
+    void isOpenToVoteTest() throws XWikiException
     {
-        DocumentReference input = new DocumentReference("XWiki", Arrays.asList("Space1", "Space2"), "Page");
-        BaseObject ideaObj = mock(BaseObject.class);
-        when(this.xWiki.getDocument(input, this.xWikiContext)).thenReturn(this.document);
-        when(this.document.getXObject(DefaultIdeasManager.IDEA_CLASS_REFERENCE)).thenReturn(ideaObj);
-        when(ideaObj.getStringValue("status")).thenReturn("open");
+        BaseObject statusObj = mock(BaseObject.class);
+        when(statusObj.getIntValue("openToVote")).thenReturn(1);
+        when(this.xWiki.getDocument(any(EntityReference.class), any())).thenReturn(this.document);
+        when(this.document.getXObject(any(EntityReference.class))).thenReturn(statusObj);
 
-        Query query = mock(Query.class);
-        when(query.setLimit(anyInt())).thenReturn(query);
-        when(query.bindValue(any(), any())).thenReturn(query);
-        when(query.execute()).thenReturn(List.of(1));
-        when(queryManager.createQuery(any(), any())).thenReturn(query);
-
-        assertTrue(manager.isStatusOpen(input));
+        assertTrue(manager.isOpenToVote("open"));
     }
 }

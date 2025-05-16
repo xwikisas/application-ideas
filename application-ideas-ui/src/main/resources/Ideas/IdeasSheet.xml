@@ -38,7 +38,6 @@
   <hidden>true</hidden>
   <content>{{velocity}}
 {{html wiki="true"}}
-#set($discard = $xwiki.jsx.use("Ideas.IdeasSheet"))
 #set($discard = $xwiki.ssx.use("Ideas.IdeasSheet"))
 #set($discard = $xwiki.ssx.use('AppWithinMinutes.ClassSheetGenerator'))
 #set($discard = $doc.use('Ideas.IdeasClass'))

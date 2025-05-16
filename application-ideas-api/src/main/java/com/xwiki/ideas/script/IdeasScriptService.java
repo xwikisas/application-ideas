@@ -27,6 +27,7 @@ import javax.inject.Singleton;
 
 import org.xwiki.component.annotation.Component;
 import org.xwiki.script.service.ScriptService;
+import org.xwiki.stability.Unstable;
 
 import com.xwiki.ideas.IdeasException;
 import com.xwiki.ideas.IdeasManager;
@@ -35,11 +36,12 @@ import com.xwiki.ideas.IdeasManager;
  * Script service for retrieving information about the Ideas Application.
  *
  * @version $Id$
- * @since 1.16.0
+ * @since 1.16
  */
 @Component
 @Named("ideas")
 @Singleton
+@Unstable
 public class IdeasScriptService implements ScriptService
 {
     @Inject
@@ -51,13 +53,15 @@ public class IdeasScriptService implements ScriptService
      * @param status the status to check
      * @return true if an idea with the given status is open for voting, false otherwise
      */
-    public boolean isStatusOpen(String status) throws IdeasException
+    public boolean isOpenToVote(String status) throws IdeasException
     {
-        return ideasManager.isStatusOpen(status);
+        return ideasManager.isOpenToVote(status);
     }
 
     /**
-     * @return a list of statuses sorted by their order property.
+     * Get a list of statuses sorted by their order (contains openToVote property too).
+     *
+     * @return list of tuples for each status (name, openToVote)
      */
     public List<Object[]> getSortedStatuses()
     {

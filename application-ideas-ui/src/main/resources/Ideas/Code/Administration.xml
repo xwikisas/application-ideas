@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
 -->
 
-<xwikidoc version="1.5" reference="Ideas.Code.Administration" locale="">
+<xwikidoc version="1.6" reference="Ideas.Code.Administration" locale="">
   <web>Ideas.Code</web>
   <name>Administration</name>
   <language/>
@@ -305,6 +305,89 @@
     </property>
     <property>
       <sectionOrder/>
+    </property>
+  </object>
+  <object>
+    <name>Ideas.Code.Administration</name>
+    <number>0</number>
+    <className>XWiki.XWikiRights</className>
+    <guid>d7a10081-0ff3-4eac-b4d5-d738cb21748d</guid>
+    <class>
+      <name>XWiki.XWikiRights</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <allow>
+        <defaultValue>1</defaultValue>
+        <disabled>0</disabled>
+        <displayFormType>select</displayFormType>
+        <displayType>allow</displayType>
+        <name>allow</name>
+        <number>4</number>
+        <prettyName>Allow/Deny</prettyName>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
+      </allow>
+      <groups>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <multiSelect>1</multiSelect>
+        <name>groups</name>
+        <number>1</number>
+        <picker>1</picker>
+        <prettyName>Groups</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <size>5</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.GroupsClass</classType>
+      </groups>
+      <levels>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <multiSelect>1</multiSelect>
+        <name>levels</name>
+        <number>2</number>
+        <prettyName>Levels</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <size>3</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.LevelsClass</classType>
+      </levels>
+      <users>
+        <cache>0</cache>
+        <disabled>0</disabled>
+        <displayType>input</displayType>
+        <multiSelect>1</multiSelect>
+        <name>users</name>
+        <number>3</number>
+        <picker>1</picker>
+        <prettyName>Users</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator> </separator>
+        <size>5</size>
+        <unmodifiable>0</unmodifiable>
+        <classType>com.xpn.xwiki.objects.classes.UsersClass</classType>
+      </users>
+    </class>
+    <property>
+      <allow>1</allow>
+    </property>
+    <property>
+      <groups>XWiki.XWikiAdminGroup</groups>
+    </property>
+    <property>
+      <levels>edit</levels>
+    </property>
+    <property>
+      <users/>
     </property>
   </object>
 </xwikidoc>

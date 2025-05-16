@@ -265,7 +265,6 @@
   (((
   #foreach($idea in $results)
     #set($document = $xwiki.getDocument($idea))
-    #set ($object = $document.getObject('Ideas.IdeasClass'))
     #if($document.hasAccessLevel('view', $xcontext.user) == 'true')
       &lt;div class="ideas secondary"&gt;
         #if($xcontext.action == 'view')

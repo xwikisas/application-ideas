@@ -32,6 +32,7 @@ import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
@@ -59,9 +60,15 @@ import com.xwiki.ideas.model.Idea;
 @Singleton
 public class DefaultIdeasManager implements IdeasManager
 {
-    static final String STATUS_KEY = "status";
+    static final String IDEAS_SPACE = "Ideas";
 
-    static final LocalDocumentReference IDEA_CLASS_REFERENCE = new LocalDocumentReference("Ideas", "IdeasClass");
+    static final String CODE_SPACE = "Code";
+
+    static final LocalDocumentReference IDEA_CLASS_REFERENCE =
+        new LocalDocumentReference(IDEAS_SPACE, "IdeasClass");
+
+    static final LocalDocumentReference IDEA_STATUS_CLASS_REFERENCE =
+        new LocalDocumentReference(List.of(IDEAS_SPACE, CODE_SPACE), "StatusClass");
 
     static final String VOTERS_AGAINST_KEY = "against";
 
@@ -163,43 +170,25 @@ public class DefaultIdeasManager implements IdeasManager
     }
 
     @Override
-    public boolean isStatusOpen(DocumentReference ideaReference) throws IdeasException
+    public boolean isOpenToVote(String status)
     {
         try {
-            if (exists(ideaReference)) {
-                XWikiContext xcontext = contextProvider.get();
-                XWiki xWiki = xcontext.getWiki();
-                XWikiDocument ideasDoc = xWiki.getDocument(ideaReference, xcontext);
-                BaseObject ideasObj = ideasDoc.getXObject(IDEA_CLASS_REFERENCE);
-
-                String statusName = ideasObj.getStringValue(STATUS_KEY);
-                return isStatusOpen(statusName);
-            }
-            return false;
-        } catch (XWikiException e) {
-            throw new IdeasException("Could not resolve idea document reference", e);
-        }
-    }
-
-    @Override
-    public boolean isStatusOpen(String status)
-    {
-        try {
-            Query query = queryManager.createQuery(
-                "select prop3.value from BaseObject as obj,"
-                    + " StringProperty as prop1, IntegerProperty as prop3"
-                    + " where obj.className='Ideas.Code.StatusClass' and"
-                    + " obj.id=prop1.id.id and prop1.id.name='status' and prop1.id.value=:status"
-                    + " and obj.id=prop3.id.id and prop3.id.name='statusOpen'", Query.HQL);
-            List<Object> results = query.setLimit(1).bindValue(STATUS_KEY, status).execute();
-            if (!results.isEmpty()) {
-                return results.get(0).equals(1);
-            } else {
+            XWikiContext xcontext = contextProvider.get();
+            XWiki xWiki = xcontext.getWiki();
+            XWikiDocument ideasDoc =
+                xWiki.getDocument(
+                    new LocalDocumentReference(List.of(IDEAS_SPACE, CODE_SPACE, "Statuses"), "Status_" + status),
+                    xcontext);
+            BaseObject ideasObject = ideasDoc.getXObject(IDEA_STATUS_CLASS_REFERENCE);
+            if (ideasObject == null) {
                 return false;
+            } else {
+                return ideasObject.getIntValue("openToVote") == 1;
             }
-        } catch (QueryException e) {
-            logger.error("Failed to retrieve the statusOpen property for ideas status [{}]", status, e);
-            throw new RuntimeException(e);
+        } catch (XWikiException e) {
+            logger.error("Failed to retrieve the openToVote property for the idea status [{}]. Root cause is: [{}]",
+                status, ExceptionUtils.getRootCauseMessage(e));
+            return false;
         }
     }
 
@@ -211,11 +200,12 @@ public class DefaultIdeasManager implements IdeasManager
                 + " StringProperty as prop1, IntegerProperty as prop2, IntegerProperty as prop3"
                 + " where obj.className='Ideas.Code.StatusClass' and obj.id=prop1.id.id and prop1.id.name='status'"
                 + " and obj.id=prop2.id.id and prop2.id.name='order'"
-                + " and obj.id=prop3.id.id and prop3.id.name='statusOpen' order by prop2.value", Query.HQL);
+                + " and obj.id=prop3.id.id and prop3.id.name='openToVote' order by prop2.value", Query.HQL);
             return query.execute();
         } catch (QueryException e) {
-            logger.error("Failed to retrieve the sorted idea statuses.", e);
-            throw new RuntimeException(e);
+            logger.error("Failed to retrieve the sorted idea statuses. Root cause is: [{}]",
+                ExceptionUtils.getRootCauseMessage(e));
+            return List.of();
         }
     }
 

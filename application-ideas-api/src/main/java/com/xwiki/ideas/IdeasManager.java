@@ -73,9 +73,10 @@ public interface IdeasManager
     boolean exists(DocumentReference documentReference) throws IdeasException;
 
     /**
-     * Get a list of statuses sorted by their order (contains statusOpen property too).
+     * Get a list of statuses sorted by their order (contains openToVote property too).
      *
-     * @return list of tuples for each status (name, statusOpen)
+     * @return list of tuples for each status (name, openToVote)
+     * @since 1.16
      */
     List<Object[]> getSortedStatuses();
 
@@ -84,14 +85,7 @@ public interface IdeasManager
      *
      * @param status the name of the status to check
      * @return whether the status allows voting on an Idea
+     * @since 1.16
      */
-    boolean isStatusOpen(String status) throws IdeasException;
-
-    /**
-     * A function to see if an Idea is open for voting.
-     *
-     * @param ideaReference the document reference of the idea page to check
-     * @return whether the Idea is open for voting
-     */
-    boolean isStatusOpen(DocumentReference ideaReference) throws IdeasException;
+    boolean isOpenToVote(String status) throws IdeasException;
 }
