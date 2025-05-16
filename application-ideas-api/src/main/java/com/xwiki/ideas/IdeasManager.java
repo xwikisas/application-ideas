@@ -19,6 +19,8 @@
  */
 package com.xwiki.ideas;
 
+import java.util.List;
+
 import org.xwiki.component.annotation.Role;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.stability.Unstable;
@@ -69,4 +71,21 @@ public interface IdeasManager
      * @throws IdeasException if the document does not exists or it doesn't have an Idea
      */
     boolean exists(DocumentReference documentReference) throws IdeasException;
+
+    /**
+     * Get a list of statuses sorted by their order (contains openToVote property too).
+     *
+     * @return list of tuples for each status (name, openToVote)
+     * @since 1.16
+     */
+    List<Object[]> getSortedStatuses();
+
+    /**
+     * A function to see if a status allows voting on an Idea.
+     *
+     * @param status the name of the status to check
+     * @return whether the status allows voting on an Idea
+     * @since 1.16
+     */
+    boolean isOpenToVote(String status) throws IdeasException;
 }

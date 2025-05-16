@@ -28,6 +28,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.xwiki.model.reference.DocumentReference;
+import org.xwiki.model.reference.EntityReference;
 import org.xwiki.model.reference.EntityReferenceSerializer;
 import org.xwiki.test.junit5.mockito.ComponentTest;
 import org.xwiki.test.junit5.mockito.InjectMockComponents;
@@ -42,6 +43,7 @@ import com.xwiki.ideas.IdeasException;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -64,13 +66,15 @@ class DefaultIdeasManagerTest
     @MockComponent
     @Named("compactwiki")
     private EntityReferenceSerializer<String> serializer;
+
     @Mock
     private XWikiContext xWikiContext;
+
     @Mock
     private XWiki xWiki;
+
     @Mock
     private XWikiDocument document;
-
 
     @BeforeEach
     void setup()
@@ -78,6 +82,7 @@ class DefaultIdeasManagerTest
         when(this.contextProvider.get()).thenReturn(this.xWikiContext);
         when(this.xWikiContext.getWiki()).thenReturn(xWiki);
     }
+
     @Test
     void voteDocumentWithNoIdeaObjectTest() throws XWikiException
     {
@@ -110,4 +115,14 @@ class DefaultIdeasManagerTest
         verify(this.xWiki).saveDocument(this.document, "Updated Votes", this.xWikiContext);
     }
 
+    @Test
+    void isOpenToVoteTest() throws XWikiException
+    {
+        BaseObject statusObj = mock(BaseObject.class);
+        when(statusObj.getIntValue("openToVote")).thenReturn(1);
+        when(this.xWiki.getDocument(any(EntityReference.class), any())).thenReturn(this.document);
+        when(this.document.getXObject(any(EntityReference.class))).thenReturn(statusObj);
+
+        assertTrue(manager.isOpenToVote("open"));
+    }
 }

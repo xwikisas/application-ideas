@@ -32,11 +32,16 @@ import javax.inject.Named;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.EntityReferenceSerializer;
 import org.xwiki.model.reference.LocalDocumentReference;
+import org.xwiki.query.Query;
+import org.xwiki.query.QueryException;
+import org.xwiki.query.QueryManager;
 
 import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.XWikiContext;
@@ -55,7 +60,15 @@ import com.xwiki.ideas.model.Idea;
 @Singleton
 public class DefaultIdeasManager implements IdeasManager
 {
-    static final LocalDocumentReference IDEA_CLASS_REFERENCE = new LocalDocumentReference("Ideas", "IdeasClass");
+    static final String IDEAS_SPACE = "Ideas";
+
+    static final String CODE_SPACE = "Code";
+
+    static final LocalDocumentReference IDEA_CLASS_REFERENCE =
+        new LocalDocumentReference(IDEAS_SPACE, "IdeasClass");
+
+    static final LocalDocumentReference IDEA_STATUS_CLASS_REFERENCE =
+        new LocalDocumentReference(List.of(IDEAS_SPACE, CODE_SPACE), "StatusClass");
 
     static final String VOTERS_AGAINST_KEY = "against";
 
@@ -85,6 +98,12 @@ public class DefaultIdeasManager implements IdeasManager
     @Inject
     @Named("compactwiki")
     private EntityReferenceSerializer<String> serializer;
+
+    @Inject
+    private QueryManager queryManager;
+
+    @Inject
+    private Logger logger;
 
     @Override
     public Idea vote(DocumentReference documentReference, boolean pro)
@@ -147,6 +166,46 @@ public class DefaultIdeasManager implements IdeasManager
             return ideasObject != null;
         } catch (XWikiException e) {
             throw new IdeasException(String.format(FAILED_LOAD_EXCEPTION, documentReference), e);
+        }
+    }
+
+    @Override
+    public boolean isOpenToVote(String status)
+    {
+        try {
+            XWikiContext xcontext = contextProvider.get();
+            XWiki xWiki = xcontext.getWiki();
+            XWikiDocument ideasDoc =
+                xWiki.getDocument(
+                    new LocalDocumentReference(List.of(IDEAS_SPACE, CODE_SPACE, "Statuses"), "Status_" + status),
+                    xcontext);
+            BaseObject ideasObject = ideasDoc.getXObject(IDEA_STATUS_CLASS_REFERENCE);
+            if (ideasObject == null) {
+                return false;
+            } else {
+                return ideasObject.getIntValue("openToVote") == 1;
+            }
+        } catch (XWikiException e) {
+            logger.error("Failed to retrieve the openToVote property for the idea status [{}]. Root cause is: [{}]",
+                status, ExceptionUtils.getRootCauseMessage(e));
+            return false;
+        }
+    }
+
+    @Override
+    public List<Object[]> getSortedStatuses()
+    {
+        try {
+            Query query = queryManager.createQuery("select prop1.value, prop3.value from BaseObject as obj,"
+                + " StringProperty as prop1, IntegerProperty as prop2, IntegerProperty as prop3"
+                + " where obj.className='Ideas.Code.StatusClass' and obj.id=prop1.id.id and prop1.id.name='status'"
+                + " and obj.id=prop2.id.id and prop2.id.name='order'"
+                + " and obj.id=prop3.id.id and prop3.id.name='openToVote' order by prop2.value", Query.HQL);
+            return query.execute();
+        } catch (QueryException e) {
+            logger.error("Failed to retrieve the sorted idea statuses. Root cause is: [{}]",
+                ExceptionUtils.getRootCauseMessage(e));
+            return List.of();
         }
     }
 
