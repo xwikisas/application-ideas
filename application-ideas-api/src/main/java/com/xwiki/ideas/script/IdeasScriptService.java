@@ -19,8 +19,6 @@
  */
 package com.xwiki.ideas.script;
 
-import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
@@ -56,15 +54,5 @@ public class IdeasScriptService implements ScriptService
     public boolean isOpenToVote(String status) throws IdeasException
     {
         return ideasManager.isOpenToVote(status);
-    }
-
-    /**
-     * Get a list of statuses sorted by their order (contains openToVote property too).
-     *
-     * @return list of tuples for each status (name, openToVote)
-     */
-    public List<Object[]> getSortedStatuses()
-    {
-        return ideasManager.getSortedStatuses();
     }
 }

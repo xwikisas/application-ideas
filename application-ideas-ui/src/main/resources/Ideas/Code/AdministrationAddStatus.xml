@@ -39,10 +39,8 @@
   <content>{{velocity}}
 #if ($hasAdmin)
   #set ($status = $request.status)
-  #set ($order = $request.order)
   #set ($openToVote = $request.openToVote)
-  #if ($stringtool.isNotBlank($name) &amp;&amp; $stringtool.isNotBlank($order) &amp;&amp;
-      $services.csrf.isTokenValid($request.form_token))
+  #if ($stringtool.isNotBlank($name) &amp;&amp; $services.csrf.isTokenValid($request.form_token))
     #set ($document = $xwiki.getDocument("Ideas.Code.Statuses.Status_$status"))
     #set ($discard = $document.setTitle($status))
     #set ($discard = $document.setHidden(true))
@@ -53,7 +51,6 @@
     #else
       #set ($discard = $object.set('openToVote', 0))
     #end
-    #set ($discard = $object.set('order', $order))
     #set ($discard = $document.save())
   #end
 
@@ -79,16 +76,6 @@
           &lt;input id="openToVote" name="openToVote" type="checkbox" size="5"/&gt;
         &lt;/dd&gt;
       &lt;/dl&gt;
-      &lt;dl&gt;
-        &lt;dt&gt;
-          &lt;label for="order"&gt;$escapetool.xml($services.localization.render('Ideas.administration.addStatus.order.label'))&lt;/label&gt;
-          &lt;span class="xHint"&gt;$escapetool.xml($services.localization.render('Ideas.administration.addStatus.order.hint'))&lt;/span&gt;
-        &lt;/dt&gt;
-        &lt;dd&gt;
-          &lt;input id="order" name="order" type="number" size="5" required
-            placeholder="$escapetool.xml($services.localization.render('Ideas.administration.addStatus.order.placeholder'))"/&gt;
-        &lt;/dd&gt;
-      &lt;/dl&gt;
       &lt;span class="buttonwrapper"&gt;
         &lt;button class="button" type="submit"&gt;$escapetool.xml($services.localization.render('Ideas.administration.addStatus.submit'))&lt;/button&gt;
       &lt;/span&gt;
@@ -106,8 +93,7 @@
   })
 {{liveData
   id="ideaStatuses"
-  properties="status,order,openToVote,doc.date,doc.author,_actions"
-  sort="order:asc"
+  properties="status,openToVote,doc.date,doc.author,_actions"
   source="liveTable"
   sourceParameters="$services.rendering.escape($escapetool.url($options), 'xwiki/2.1')"
 }}

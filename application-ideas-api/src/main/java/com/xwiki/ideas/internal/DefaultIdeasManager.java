@@ -39,8 +39,6 @@ import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.EntityReferenceSerializer;
 import org.xwiki.model.reference.LocalDocumentReference;
-import org.xwiki.query.Query;
-import org.xwiki.query.QueryException;
 import org.xwiki.query.QueryManager;
 
 import com.xpn.xwiki.XWiki;
@@ -189,23 +187,6 @@ public class DefaultIdeasManager implements IdeasManager
             logger.error("Failed to retrieve the openToVote property for the idea status [{}]. Root cause is: [{}]",
                 status, ExceptionUtils.getRootCauseMessage(e));
             return false;
-        }
-    }
-
-    @Override
-    public List<Object[]> getSortedStatuses()
-    {
-        try {
-            Query query = queryManager.createQuery("select prop1.value, prop3.value from BaseObject as obj,"
-                + " StringProperty as prop1, IntegerProperty as prop2, IntegerProperty as prop3"
-                + " where obj.className='Ideas.Code.StatusClass' and obj.id=prop1.id.id and prop1.id.name='status'"
-                + " and obj.id=prop2.id.id and prop2.id.name='order'"
-                + " and obj.id=prop3.id.id and prop3.id.name='openToVote' order by prop2.value", Query.HQL);
-            return query.execute();
-        } catch (QueryException e) {
-            logger.error("Failed to retrieve the sorted idea statuses. Root cause is: [{}]",
-                ExceptionUtils.getRootCauseMessage(e));
-            return List.of();
         }
     }
 

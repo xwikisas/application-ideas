@@ -66,20 +66,6 @@
         <validationRegExp/>
         <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
       </openToVote>
-      <order>
-        <customDisplay/>
-        <disabled>0</disabled>
-        <hint/>
-        <name>order</name>
-        <number>3</number>
-        <numberType>integer</numberType>
-        <prettyName>order</prettyName>
-        <size>30</size>
-        <unmodifiable>0</unmodifiable>
-        <validationMessage/>
-        <validationRegExp/>
-        <classType>com.xpn.xwiki.objects.classes.NumberClass</classType>
-      </order>
       <status>
         <customDisplay/>
         <disabled>0</disabled>
@@ -97,9 +83,6 @@
     </class>
     <property>
       <openToVote>0</openToVote>
-    </property>
-    <property>
-      <order>2</order>
     </property>
     <property>
       <status>closed</status>
