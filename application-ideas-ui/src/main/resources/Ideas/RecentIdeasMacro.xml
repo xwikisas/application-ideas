@@ -302,9 +302,6 @@
       <defaultCategories/>
     </property>
     <property>
-      <defaultCategory/>
-    </property>
-    <property>
       <description>Displays the N most recent ideas.</description>
     </property>
     <property>

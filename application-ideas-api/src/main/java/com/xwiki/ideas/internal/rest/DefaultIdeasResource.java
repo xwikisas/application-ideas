@@ -26,6 +26,7 @@ import javax.inject.Singleton;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.LocalDocumentReference;
@@ -138,6 +139,8 @@ public class DefaultIdeasResource extends ModifiablePageResource implements Idea
                 return ideasObject.getStringValue("status");
             }
         } catch (XWikiException e) {
+            getLogger().error("Failed to retrieve the status for the idea on page [{}]. Root cause is: [{}]",
+                documentReference, ExceptionUtils.getRootCauseMessage(e), e);
             return null;
         }
     }

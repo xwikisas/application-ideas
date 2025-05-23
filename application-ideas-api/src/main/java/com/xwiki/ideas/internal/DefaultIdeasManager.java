@@ -62,8 +62,7 @@ public class DefaultIdeasManager implements IdeasManager
 
     static final String CODE_SPACE = "Code";
 
-    static final LocalDocumentReference IDEA_CLASS_REFERENCE =
-        new LocalDocumentReference(IDEAS_SPACE, "IdeasClass");
+    static final LocalDocumentReference IDEA_CLASS_REFERENCE = new LocalDocumentReference(IDEAS_SPACE, "IdeasClass");
 
     static final LocalDocumentReference IDEA_STATUS_CLASS_REFERENCE =
         new LocalDocumentReference(List.of(IDEAS_SPACE, CODE_SPACE), "StatusClass");
@@ -173,10 +172,8 @@ public class DefaultIdeasManager implements IdeasManager
         try {
             XWikiContext xcontext = contextProvider.get();
             XWiki xWiki = xcontext.getWiki();
-            XWikiDocument ideasDoc =
-                xWiki.getDocument(
-                    new LocalDocumentReference(List.of(IDEAS_SPACE, CODE_SPACE, "Statuses"), "Status_" + status),
-                    xcontext);
+            XWikiDocument ideasDoc = xWiki.getDocument(
+                new LocalDocumentReference(List.of(IDEAS_SPACE, CODE_SPACE, "Statuses"), "Status_" + status), xcontext);
             BaseObject ideasObject = ideasDoc.getXObject(IDEA_STATUS_CLASS_REFERENCE);
             if (ideasObject == null) {
                 return false;
