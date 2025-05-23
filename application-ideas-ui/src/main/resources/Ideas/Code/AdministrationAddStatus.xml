@@ -40,7 +40,7 @@
 #if ($hasAdmin)
   #set ($status = $request.status)
   #set ($openToVote = $request.openToVote)
-  #if ($stringtool.isNotBlank($name) &amp;&amp; $services.csrf.isTokenValid($request.form_token))
+  #if ($stringtool.isNotBlank($status) &amp;&amp; $services.csrf.isTokenValid($request.form_token))
     #set ($document = $xwiki.getDocument("Ideas.Code.Statuses.Status_$status"))
     #set ($discard = $document.setTitle($status))
     #set ($discard = $document.setHidden(true))
@@ -95,7 +95,7 @@
   id="ideaStatuses"
   properties="status,openToVote,doc.date,doc.author,_actions"
   source="liveTable"
-  sourceParameters="$services.rendering.escape($escapetool.url($options), 'xwiki/2.1')"
+  sourceParameters="$escapetool.url($options)"
 }}
 $jsontool.serialize($liveDataConfig)
 {{/liveData}}
