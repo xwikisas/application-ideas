@@ -39,7 +39,6 @@ import org.xwiki.component.annotation.Component;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.EntityReferenceSerializer;
 import org.xwiki.model.reference.LocalDocumentReference;
-import org.xwiki.query.QueryManager;
 
 import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.XWikiContext;
@@ -96,9 +95,6 @@ public class DefaultIdeasManager implements IdeasManager
     @Inject
     @Named("compactwiki")
     private EntityReferenceSerializer<String> serializer;
-
-    @Inject
-    private QueryManager queryManager;
 
     @Inject
     private Logger logger;
@@ -182,7 +178,7 @@ public class DefaultIdeasManager implements IdeasManager
                 return ideasStatusObject.getStringValue("openToVote").equals("1");
             }
         } catch (XWikiException e) {
-            logger.error("Failed to retrieve the openToVote property for the idea status [{}]. Root cause is: [{}]",
+            logger.warn("Failed to retrieve the openToVote property for the idea status [{}]. Root cause is: [{}]",
                 status, ExceptionUtils.getRootCauseMessage(e));
             return false;
         }

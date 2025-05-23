@@ -140,8 +140,8 @@ public class DefaultIdeasResource extends ModifiablePageResource implements Idea
                 return ideasObject.getStringValue("status");
             }
         } catch (XWikiException e) {
-            getLogger().error("Failed to retrieve the status for the idea on page [{}]. Root cause is: [{}]",
-                documentReference, ExceptionUtils.getRootCauseMessage(e), e);
+            getLogger().warn("Failed to retrieve the status for the idea on page [{}]. Root cause is: [{}]",
+                documentReference, ExceptionUtils.getRootCauseMessage(e));
             return null;
         }
     }
