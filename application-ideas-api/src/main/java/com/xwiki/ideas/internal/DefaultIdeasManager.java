@@ -58,15 +58,6 @@ import com.xwiki.ideas.model.Idea;
 @Singleton
 public class DefaultIdeasManager implements IdeasManager
 {
-    static final String IDEAS_SPACE = "Ideas";
-
-    static final String CODE_SPACE = "Code";
-
-    static final LocalDocumentReference IDEA_CLASS_REFERENCE = new LocalDocumentReference(IDEAS_SPACE, "IdeasClass");
-
-    static final LocalDocumentReference IDEA_STATUS_CLASS_REFERENCE =
-        new LocalDocumentReference(List.of(IDEAS_SPACE, CODE_SPACE), "StatusClass");
-
     static final String VOTERS_AGAINST_KEY = "against";
 
     static final String NUMBER_OF_AGAINST_VOTES_KEY = "nbagainst";
@@ -74,6 +65,16 @@ public class DefaultIdeasManager implements IdeasManager
     static final String VOTERS_FOR_KEY = "supporters";
 
     static final String NUMBER_OF_FOR_VOTES_KEY = "nbvotes";
+
+    private static final String IDEAS_SPACE = "Ideas";
+
+    private static final String CODE_SPACE = "Code";
+
+    private static final LocalDocumentReference IDEA_CLASS_REFERENCE =
+        new LocalDocumentReference(IDEAS_SPACE, "IdeasClass");
+
+    private static final LocalDocumentReference IDEA_STATUS_CLASS_REFERENCE =
+        new LocalDocumentReference(List.of(IDEAS_SPACE, CODE_SPACE), "StatusClass");
 
     private static final Map<String, String> VOTER_KEY_TO_NR_KEY = new HashMap<>();
 
@@ -172,13 +173,13 @@ public class DefaultIdeasManager implements IdeasManager
         try {
             XWikiContext xcontext = contextProvider.get();
             XWiki xWiki = xcontext.getWiki();
-            XWikiDocument ideasDoc = xWiki.getDocument(
+            XWikiDocument ideasStatusDoc = xWiki.getDocument(
                 new LocalDocumentReference(List.of(IDEAS_SPACE, CODE_SPACE, "Statuses"), "Status_" + status), xcontext);
-            BaseObject ideasObject = ideasDoc.getXObject(IDEA_STATUS_CLASS_REFERENCE);
-            if (ideasObject == null) {
+            BaseObject ideasStatusObject = ideasStatusDoc.getXObject(IDEA_STATUS_CLASS_REFERENCE);
+            if (ideasStatusObject == null) {
                 return false;
             } else {
-                return ideasObject.getIntValue("openToVote") == 1;
+                return ideasStatusObject.getStringValue("openToVote").equals("1");
             }
         } catch (XWikiException e) {
             logger.error("Failed to retrieve the openToVote property for the idea status [{}]. Root cause is: [{}]",

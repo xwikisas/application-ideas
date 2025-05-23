@@ -57,7 +57,8 @@ import com.xwiki.ideas.rest.IdeasResource;
 @Singleton
 public class DefaultIdeasResource extends ModifiablePageResource implements IdeasResource
 {
-    static final LocalDocumentReference IDEA_CLASS_REFERENCE = new LocalDocumentReference("Ideas", "IdeasClass");
+    private static final LocalDocumentReference IDEA_CLASS_REFERENCE =
+        new LocalDocumentReference("Ideas", "IdeasClass");
 
     @Inject
     private IdeasManager manager;

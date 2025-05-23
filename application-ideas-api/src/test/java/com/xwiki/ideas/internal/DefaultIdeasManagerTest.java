@@ -30,6 +30,7 @@ import org.mockito.Mock;
 import org.xwiki.model.reference.DocumentReference;
 import org.xwiki.model.reference.EntityReference;
 import org.xwiki.model.reference.EntityReferenceSerializer;
+import org.xwiki.model.reference.LocalDocumentReference;
 import org.xwiki.test.junit5.mockito.ComponentTest;
 import org.xwiki.test.junit5.mockito.InjectMockComponents;
 import org.xwiki.test.junit5.mockito.MockComponent;
@@ -57,6 +58,9 @@ import static org.mockito.Mockito.when;
 @ComponentTest
 class DefaultIdeasManagerTest
 {
+    private static final LocalDocumentReference IDEA_CLASS_REFERENCE =
+        new LocalDocumentReference("Ideas", "IdeasClass");
+
     @InjectMockComponents
     private DefaultIdeasManager manager;
 
@@ -104,7 +108,7 @@ class DefaultIdeasManagerTest
         DocumentReference input = new DocumentReference("XWiki", Arrays.asList("Space1", "Space2"), "Page");
         BaseObject ideaObj = mock(BaseObject.class);
         when(this.xWiki.getDocument(input, this.xWikiContext)).thenReturn(this.document);
-        when(this.document.getXObject(DefaultIdeasManager.IDEA_CLASS_REFERENCE)).thenReturn(ideaObj);
+        when(this.document.getXObject(IDEA_CLASS_REFERENCE)).thenReturn(ideaObj);
         when(this.xWikiContext.getUserReference()).thenReturn(user);
         when(this.document.isNew()).thenReturn(false);
         when(this.serializer.serialize(user, input.getWikiReference())).thenReturn(userName);
@@ -119,7 +123,7 @@ class DefaultIdeasManagerTest
     void isOpenToVoteTest() throws XWikiException
     {
         BaseObject statusObj = mock(BaseObject.class);
-        when(statusObj.getIntValue("openToVote")).thenReturn(1);
+        when(statusObj.getStringValue("openToVote")).thenReturn("1");
         when(this.xWiki.getDocument(any(EntityReference.class), any())).thenReturn(this.document);
         when(this.document.getXObject(any(EntityReference.class))).thenReturn(statusObj);
 
