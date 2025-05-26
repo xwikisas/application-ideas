@@ -29,7 +29,7 @@
   </parent>
   <groupId>com.xwiki.ideas</groupId>
   <artifactId>application-ideas-pom</artifactId>
-  <version>1.16</version>
+  <version>1.16.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Ideas Application Parent POM</name>
   <description>Empower innovation inside your team. Make proposals and share ideas. Vote on other users initiatives. The app can be purchased individually or part of the XWiki Pro package. Try it free.</description>
@@ -41,7 +41,7 @@
     <connection>scm:git:git://github.com/xwikisas/application-ideas.git</connection>
     <developerConnection>scm:git:git@github.com:xwikisas/application-ideas.git</developerConnection>
     <url>https://github.com/xwikisas/application-ideas/tree/master</url>
-    <tag>application-ideas-pom-1.16</tag>
+    <tag>HEAD</tag>
   </scm>
   <properties>
     <licensing.version>1.25</licensing.version>
