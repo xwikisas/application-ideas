@@ -175,7 +175,7 @@ public class DefaultIdeasManager implements IdeasManager
             if (ideasStatusObject == null) {
                 return false;
             } else {
-                return ideasStatusObject.getStringValue("openToVote").equals("1");
+                return ideasStatusObject.getIntValue("openToVote") == 1;
             }
         } catch (XWikiException e) {
             logger.warn("Failed to retrieve the openToVote property for the idea status [{}]. Root cause is: [{}]",

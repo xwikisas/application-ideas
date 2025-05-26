@@ -123,7 +123,7 @@ class DefaultIdeasManagerTest
     void isOpenToVoteTest() throws XWikiException
     {
         BaseObject statusObj = mock(BaseObject.class);
-        when(statusObj.getStringValue("openToVote")).thenReturn("1");
+        when(statusObj.getIntValue("openToVote")).thenReturn(1);
         when(this.xWiki.getDocument(any(EntityReference.class), any())).thenReturn(this.document);
         when(this.document.getXObject(any(EntityReference.class))).thenReturn(statusObj);
 

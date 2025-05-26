@@ -47,29 +47,19 @@
     <nameField/>
     <validationScript/>
     <openToVote>
-      <cache>0</cache>
       <customDisplay/>
-      <defaultValue>0</defaultValue>
+      <defaultValue/>
       <disabled>0</disabled>
-      <displayType>select</displayType>
-      <freeText/>
+      <displayFormType>checkbox</displayFormType>
+      <displayType/>
       <hint/>
-      <largeStorage>0</largeStorage>
-      <multiSelect>0</multiSelect>
       <name>openToVote</name>
       <number>2</number>
-      <picker>0</picker>
       <prettyName>openToVote</prettyName>
-      <relationalStorage>0</relationalStorage>
-      <separator> </separator>
-      <separators>|, </separators>
-      <size>1</size>
-      <sort/>
       <unmodifiable>0</unmodifiable>
       <validationMessage/>
       <validationRegExp/>
-      <values>0=Closed|1=Open</values>
-      <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      <classType>com.xpn.xwiki.objects.classes.BooleanClass</classType>
     </openToVote>
     <status>
       <customDisplay/>
