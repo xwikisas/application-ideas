@@ -49,6 +49,71 @@
   <object>
     <name>Ideas.Code.Administration</name>
     <number>0</number>
+    <className>Ideas.Code.ConfigurationClass</className>
+    <guid>d5502b1e-7eef-4f36-ac8d-20bf026859e5</guid>
+    <class>
+      <name>Ideas.Code.ConfigurationClass</name>
+      <customClass/>
+      <customMapping/>
+      <defaultViewSheet/>
+      <defaultEditSheet/>
+      <defaultWeb/>
+      <nameField/>
+      <validationScript/>
+      <homepageLivetableColumns>
+        <cache>0</cache>
+        <customDisplay>{{velocity output="false"}}
+#template('pickers_macros.vm')
+{{/velocity}}
+{{velocity}}
+#set ($columns = ['doc.fullName','nbvotes','nbagainst','doc.title','nbestimate','status','priority','assignement','doc.date','doc.author','_actions'])
+#set ($options = [])
+#foreach ($col in $columns)
+  #set ($discard = $options.add({ 'name': $col, 'value': $col}))
+#end
+#set ($parameters = {
+  'name': 'Ideas.Code.ConfigurationClass_0_homepageLivetableColumns',
+  'value': $value,
+  'multiple': 'multiple',
+  'prefix': 'ideas.livetable.',
+  'options': $options
+})
+&lt;$value&gt;
+
+{{html}}
+#staticSelectPicker($parameters)
+{{/html}}
+{{/velocity}}</customDisplay>
+        <defaultValue/>
+        <disabled>0</disabled>
+        <displayType>select</displayType>
+        <freeText/>
+        <hint>The columns to display for each idea in the livetable on the Ideas homepage.</hint>
+        <largeStorage>0</largeStorage>
+        <multiSelect>1</multiSelect>
+        <name>homepageLivetableColumns</name>
+        <number>1</number>
+        <picker>1</picker>
+        <prettyName>Homepage Livetable Columns</prettyName>
+        <relationalStorage>0</relationalStorage>
+        <separator>, </separator>
+        <separators>, </separators>
+        <size>30</size>
+        <sort/>
+        <unmodifiable>0</unmodifiable>
+        <validationMessage/>
+        <validationRegExp/>
+        <values>doc.fullName|nbvotes|nbagainst|doc.title|nbestimate|status|priority|assignement|doc.date|doc.author|_actions</values>
+        <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
+      </homepageLivetableColumns>
+    </class>
+    <property>
+      <homepageLivetableColumns/>
+    </property>
+  </object>
+  <object>
+    <name>Ideas.Code.Administration</name>
+    <number>0</number>
     <className>XWiki.ConfigurableClass</className>
     <guid>6115da9f-52ce-444a-bdbf-a27fe489caeb</guid>
     <class>
@@ -277,7 +342,7 @@
 ----</codeToExecute>
     </property>
     <property>
-      <configurationClass/>
+      <configurationClass>Ideas.Code.ConfigurationClass</configurationClass>
     </property>
     <property>
       <displayBeforeCategory/>
