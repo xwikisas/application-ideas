@@ -68,18 +68,22 @@
 {{velocity}}
 #set ($columns = ['doc.fullName','nbvotes','nbagainst','doc.title','nbestimate','status','priority','assignement','doc.date','doc.author','_actions'])
 #set ($options = [])
-#foreach ($col in $columns)
+## Workaround for selectize reordering the already selected values.
+#foreach ($col in $value)
   #set ($discard = $options.add({ 'name': $col, 'value': $col}))
 #end
+#foreach ($col in $columns)
+  #if (!$options.contains($col))
+    #set ($discard = $options.add({ 'name': $col, 'value': $col}))
+  #end
+#end
 #set ($parameters = {
-  'name': 'Ideas.Code.ConfigurationClass_0_homepageLivetableColumns',
+  'name': "${object.getxWikiClass().name}_${object.number}_${name}",
   'value': $value,
   'multiple': 'multiple',
   'prefix': 'ideas.livetable.',
   'options': $options
 })
-&lt;$value&gt;
-
 {{html}}
 #staticSelectPicker($parameters)
 {{/html}}
@@ -88,17 +92,17 @@
         <disabled>0</disabled>
         <displayType>select</displayType>
         <freeText/>
-        <hint>The columns to display for each idea in the livetable on the Ideas homepage.</hint>
+        <hint/>
         <largeStorage>0</largeStorage>
         <multiSelect>1</multiSelect>
         <name>homepageLivetableColumns</name>
         <number>1</number>
         <picker>1</picker>
-        <prettyName>Homepage Livetable Columns</prettyName>
+        <prettyName/>
         <relationalStorage>0</relationalStorage>
         <separator>, </separator>
         <separators>, </separators>
-        <size>30</size>
+        <size>1</size>
         <sort/>
         <unmodifiable>0</unmodifiable>
         <validationMessage/>
@@ -108,7 +112,18 @@
       </homepageLivetableColumns>
     </class>
     <property>
-      <homepageLivetableColumns/>
+      <homepageLivetableColumns>
+        <value>nbvotes</value>
+        <value>nbagainst</value>
+        <value>doc.title</value>
+        <value>nbestimate</value>
+        <value>status</value>
+        <value>priority</value>
+        <value>assignement</value>
+        <value>doc.date</value>
+        <value>doc.author</value>
+        <value>_actions</value>
+      </homepageLivetableColumns>
     </property>
   </object>
   <object>
