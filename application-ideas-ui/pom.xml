@@ -65,6 +65,13 @@
       <artifactId>application-licensing-licensor-api</artifactId>
       <version>${licensing.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.xwiki.commons</groupId>
+      <artifactId>xwiki-pro-commons-pickers-ui</artifactId>
+      <version>${xwikiprocommons.version}</version>
+      <type>xar</type>
+      <scope>runtime</scope>
+    </dependency>
   </dependencies>
 
   <build>
