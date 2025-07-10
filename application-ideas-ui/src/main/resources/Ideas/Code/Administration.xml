@@ -64,9 +64,8 @@
         <cache>0</cache>
         <customDisplay>{{velocity output="false"}}
 #template('pickers_macros.vm')
-{{/velocity}}
-{{velocity}}
-#set ($columns = ['doc.fullName','nbvotes','nbagainst','doc.title','nbestimate','status','priority','assignement','doc.date','doc.author','_actions'])
+{{/velocity}}{{velocity}}
+#set ($columns = $object.getProperty($name).getPropertyClass().getListValues())
 #set ($options = [])
 ## Workaround for selectize reordering the already selected values.
 #foreach ($col in $value)
@@ -107,7 +106,7 @@
         <unmodifiable>0</unmodifiable>
         <validationMessage/>
         <validationRegExp/>
-        <values>doc.fullName|nbvotes|nbagainst|doc.title|nbestimate|status|priority|assignement|doc.date|doc.author|_actions</values>
+        <values>nbvotes|nbagainst|doc.title|nbestimate|status|priority|assignement|doc.date|doc.author|_actions</values>
         <classType>com.xpn.xwiki.objects.classes.StaticListClass</classType>
       </homepageLivetableColumns>
     </class>
