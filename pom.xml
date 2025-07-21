@@ -45,7 +45,7 @@
   </scm>
   <properties>
     <licensing.version>1.29</licensing.version>
-    <xwikiprocommons.version>1.0.4</xwikiprocommons.version>
+    <xwikiprocommons.version>1.2.0</xwikiprocommons.version>
   </properties>
   <!-- Even though this repository is already declared in the parent POM, we still explicitly redeclare it for
        convenience. This makes it simpler to build this project without having to declare this repository in one's own
