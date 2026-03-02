@@ -35,7 +35,7 @@
     <dependency>
       <artifactId>application-ideas</artifactId>
       <groupId>com.xwiki.ideas</groupId>
-      <version>1.17.1-SNAPSHOT</version>
+      <version>${project.version}</version>
       <type>xar</type>
     </dependency>
   </dependencies>
