@@ -37,10 +37,10 @@
     <system>GitHub</system>
     <url>https://github.com/xwikisas/application-ideas/issues</url>
   </issueManagement>
-  <scm>
-    <connection>scm:git:git://github.com/xwikisas/application-ideas.git</connection>
-    <developerConnection>scm:git:git@github.com:xwikisas/application-ideas.git</developerConnection>
-    <url>https://github.com/xwikisas/application-ideas/tree/master</url>
+  <scm child.scm.connection.inherit.append.path="false" child.scm.developerConnection.inherit.append.path="false" child.scm.url.inherit.append.path="false">
+    <connection>scm:git:https://github.com/xwikisas/application-ideas.git</connection>
+    <developerConnection>scm:git:ssh@github.com/xwikisas/application-ideas.git</developerConnection>
+    <url>https://github.com/xwikisas/application-ideas</url>
     <tag>HEAD</tag>
   </scm>
   <properties>
