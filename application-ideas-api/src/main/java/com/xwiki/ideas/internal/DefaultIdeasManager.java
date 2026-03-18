@@ -190,7 +190,7 @@ public class DefaultIdeasManager implements IdeasManager
         XWikiContext xcontext = contextProvider.get();
         XWiki xWiki = xcontext.getWiki();
         try {
-            XWikiDocument ideasDoc = xWiki.getDocument(documentReference, xcontext);
+            XWikiDocument ideasDoc = xWiki.getDocument(documentReference, xcontext).clone();
 
             BaseObject ideasObj = ideasDoc.getXObject(IDEA_CLASS_REFERENCE);
             DocumentReference user = xcontext.getUserReference();
