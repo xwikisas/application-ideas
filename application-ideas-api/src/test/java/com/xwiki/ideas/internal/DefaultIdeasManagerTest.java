@@ -93,6 +93,7 @@ class DefaultIdeasManagerTest
         DocumentReference input = new DocumentReference("XWiki", Arrays.asList("Space1", "Space2"), "Page");
 
         when(document.isNew()).thenReturn(false);
+        when(document.clone()).thenReturn(document);
         when(xWiki.getDocument(input, this.xWikiContext)).thenReturn(document);
 
         IdeasException e = assertThrows(IdeasException.class, () -> this.manager.vote(input, true));
@@ -111,6 +112,7 @@ class DefaultIdeasManagerTest
         when(this.document.getXObject(IDEA_CLASS_REFERENCE)).thenReturn(ideaObj);
         when(this.xWikiContext.getUserReference()).thenReturn(user);
         when(this.document.isNew()).thenReturn(false);
+        when(this.document.clone()).thenReturn(document);
         when(this.serializer.serialize(user, input.getWikiReference())).thenReturn(userName);
         when(ideaObj.getStringValue(DefaultIdeasManager.VOTERS_FOR_KEY)).thenReturn("");
         when(ideaObj.getStringValue(DefaultIdeasManager.VOTERS_AGAINST_KEY)).thenReturn("");
